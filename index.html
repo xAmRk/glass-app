@@ -304,7 +304,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 22</span>
+    <span class="version-tag">Версия: 23</span>
   </div>
 
   <div class="tabs">
@@ -422,7 +422,7 @@
         </div>
       </div>
 
-      <!-- 3А. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ -->
+      <!-- 3А. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ (ОТКРЫТ ПО УМОЛЧАНИЮ) -->
       <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
@@ -514,23 +514,21 @@
           </div>
         </div>
 
+        <!-- Крепеж: Пеликаны / Полкодержатель / Согласовать; Кромка: Полировка / Шлифовка / Согласовать -->
         <div class="grid-3" style="margin-top: 10px;">
           <div class="form-group">
             <label>Крепеж полок</label>
             <select id="shelf_holder_type">
               <option value="Согласовать" selected>Согласовать</option>
-              <option value="Пеликаны (туканы)">Пеликаны (туканы)</option>
-              <option value="П-профиль (по периметру)">П-профиль</option>
-              <option value="Коннекторы точечные">Точечные коннекторы</option>
-              <option value="Скрытый крепеж">Скрытый крепеж</option>
+              <option value="Пеликаны">Пеликаны</option>
+              <option value="Полкодержатель">Полкодержатель</option>
             </select>
           </div>
           <div class="form-group">
             <label>Кромка</label>
             <select id="shelf_edge_type">
               <option value="Согласовать" selected>Согласовать</option>
-              <option value="Еврокромка полировка">Полировка</option>
-              <option value="Фацет">Фацет</option>
+              <option value="Полировка">Полировка</option>
               <option value="Шлифовка">Шлифовка</option>
             </select>
           </div>
@@ -647,7 +645,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 22</div>
+        <div>Версия: 23</div>
       </div>
     </div>
 
@@ -713,7 +711,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v22';
+    const LOCAL_KEY = 'glass_orders_db_v23';
 
     function loadLocal() {
       try {
