@@ -293,7 +293,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 18</span>
+    <span class="version-tag">Версия: 19</span>
   </div>
 
   <div class="tabs">
@@ -325,10 +325,10 @@
           <input type="text" id="object_address" required placeholder="г. Санкт-Петербург, Невский пр., д. 20, кв. 15">
         </div>
 
-        <!-- Подъезд, Этаж, Лифт -->
+        <!-- Парадная, Этаж, Лифт -->
         <div class="grid-3">
           <div class="form-group">
-            <label>Подъезд / Парадная</label>
+            <label>Парадная</label>
             <input type="text" id="entrance_info" placeholder="напр: 2">
           </div>
           <div class="form-group">
@@ -636,7 +636,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 18</div>
+        <div>Версия: 19</div>
       </div>
     </div>
 
@@ -702,7 +702,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v18';
+    const LOCAL_KEY = 'glass_orders_db_v19';
 
     function loadLocal() {
       try {
@@ -813,13 +813,12 @@
         hwColor = customVal ? customVal : 'Другой';
       }
 
-      // Сбор подъезда, этажа и лифта
       const entrance = document.getElementById('entrance_info').value.trim();
       const floor = document.getElementById('floor_num').value.trim();
       const elevator = document.getElementById('has_elevator').value;
       
       let floorInfoArr = [];
-      if (entrance) floorInfoArr.push(`Подъезд: ${entrance}`);
+      if (entrance) floorInfoArr.push(`Парадная: ${entrance}`);
       if (floor) floorInfoArr.push(`Этаж: ${floor}`);
       floorInfoArr.push(`Лифт: ${elevator}`);
       const combinedFloorInfo = floorInfoArr.join(', ');
