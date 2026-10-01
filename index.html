@@ -206,6 +206,7 @@
       background: #1e293b;
     }
 
+    /* Бланк замера для PDF */
     #pdf-container {
       display: none;
       background: #ffffff;
@@ -251,7 +252,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 11</span>
+    <span class="version-tag">Версия: 12</span>
   </div>
 
   <div class="tabs">
@@ -305,6 +306,7 @@
               <option value="8 мм" selected>8 мм</option>
               <option value="10 мм">10 мм</option>
               <option value="12 мм">12 мм</option>
+              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
         </div>
@@ -319,6 +321,7 @@
               <option value="Кристалл">Кристалл</option>
               <option value="Черное">Черное</option>
               <option value="Рифленое">Рифленое</option>
+              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
           <div class="form-group">
@@ -327,6 +330,7 @@
               <option value="Нет">Нет</option>
               <option value="Хим мат">Хим мат</option>
               <option value="Пескоструй">Пескоструй</option>
+              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
         </div>
@@ -339,6 +343,7 @@
             <option value="Бронза">Бронза</option>
             <option value="Золото">Золото</option>
             <option value="Другой">Другой</option>
+            <option value="Согласовать">Согласовать</option>
           </select>
         </div>
 
@@ -450,7 +455,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 11</div>
+        <div>Версия: 12</div>
       </div>
     </div>
 
@@ -547,7 +552,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v11';
+    const LOCAL_KEY = 'glass_orders_db_v12';
 
     function loadLocal() {
       try {
@@ -591,7 +596,15 @@
     function getFormData() {
       const colorVal = document.getElementById('glass_color').value;
       const matteVal = document.getElementById('glass_matte').value;
-      const fullGlass = (matteVal === 'Нет') ? colorVal : `${colorVal}, ${matteVal}`;
+      
+      let fullGlass = colorVal;
+      if (colorVal === 'Согласовать' && matteVal === 'Согласовать') {
+        fullGlass = 'Согласовать';
+      } else if (matteVal === 'Согласовать') {
+        fullGlass = `${colorVal}, Матирование: Согласовать`;
+      } else if (matteVal !== 'Нет') {
+        fullGlass = `${colorVal}, ${matteVal}`;
+      }
 
       let hwColor = document.getElementById('hardware_color').value;
       if (hwColor === 'Другой') {
@@ -664,8 +677,8 @@
       document.getElementById('pdf_address').innerText = d.object_address;
       document.getElementById('pdf_floor').innerText = d.floor_info;
       document.getElementById('pdf_type').innerText = d.construct_type;
-      document.getElementById('pdf_glass').innerText = `${d.glass_thickness}, ${d.glass_color}`;
-      document.getElementById('pdf_hardware').innerText = `${d.hardware_color} (${d.hardware_type})`;
+      document.getElementById('pdf_glass').innerText = `Толщина: ${d.glass_thickness}, Цвет: ${d.glass_color}`;
+      document.getElementById('pdf_hardware').innerText = `Цвет: ${d.hardware_color} (${d.hardware_type})`;
 
       document.getElementById('pdf_h1').innerText = d.h_left + ' мм';
       document.getElementById('pdf_h2').innerText = d.h_center + ' мм';
