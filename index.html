@@ -293,7 +293,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 20</span>
+    <span class="version-tag">Версия: 21</span>
   </div>
 
   <div class="tabs">
@@ -345,7 +345,7 @@
         </div>
       </div>
 
-      <!-- 2. Изделие и стекло (Полки выбраны по умолчанию) -->
+      <!-- 2. Изделие и стекло: по умолчанию стоит Согласовать во всех полях кроме Конструкции -->
       <div class="card">
         <div class="card-title">📐 2. Тип изделия и стекло</div>
         <div class="grid-2">
@@ -359,12 +359,12 @@
           <div class="form-group">
             <label>Толщина стекла</label>
             <select id="glass_thickness">
+              <option value="Согласовать" selected>Согласовать</option>
               <option value="4 мм">4 мм</option>
               <option value="6 мм">6 мм</option>
-              <option value="8 мм" selected>8 мм</option>
+              <option value="8 мм">8 мм</option>
               <option value="10 мм">10 мм</option>
               <option value="12 мм">12 мм</option>
-              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
         </div>
@@ -373,22 +373,22 @@
           <div class="form-group">
             <label>Цвет стекла</label>
             <select id="glass_color">
+              <option value="Согласовать" selected>Согласовать</option>
               <option value="Бесцветное">Бесцветное</option>
               <option value="Серое">Серое</option>
               <option value="Бронза">Бронза</option>
               <option value="Кристалл">Кристалл</option>
               <option value="Черное">Черное</option>
               <option value="Рифленое">Рифленое</option>
-              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
           <div class="form-group">
             <label>Матирование</label>
             <select id="glass_matte">
+              <option value="Согласовать" selected>Согласовать</option>
               <option value="Нет">Нет</option>
               <option value="Хим мат">Хим мат</option>
               <option value="Пескоструй">Пескоструй</option>
-              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
         </div>
@@ -396,12 +396,12 @@
         <div class="form-group">
           <label>Цвет фурнитуры</label>
           <select id="hardware_color" onchange="toggleCustomHardwareColor()">
+            <option value="Согласовать" selected>Согласовать</option>
             <option value="Хром">Хром</option>
             <option value="Черный">Черный</option>
             <option value="Бронза">Бронза</option>
             <option value="Золото">Золото</option>
             <option value="Другой">Другой</option>
-            <option value="Согласовать">Согласовать</option>
           </select>
         </div>
 
@@ -507,28 +507,28 @@
           <div class="form-group">
             <label>Крепеж полок</label>
             <select id="shelf_holder_type">
+              <option value="Согласовать" selected>Согласовать</option>
               <option value="Пеликаны (туканы)">Пеликаны (туканы)</option>
               <option value="П-профиль (по периметру)">П-профиль</option>
               <option value="Коннекторы точечные">Точечные коннекторы</option>
               <option value="Скрытый крепеж">Скрытый крепеж</option>
-              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
           <div class="form-group">
             <label>Кромка</label>
             <select id="shelf_edge_type">
+              <option value="Согласовать" selected>Согласовать</option>
               <option value="Еврокромка полировка">Полировка</option>
               <option value="Фацет">Фацет</option>
               <option value="Шлифовка">Шлифовка</option>
-              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
           <div class="form-group">
             <label>Углы полок</label>
             <select id="shelf_corners">
+              <option value="Согласовать" selected>Согласовать</option>
               <option value="Прямые (90°)">Прямые (90°)</option>
               <option value="Радиус (скругление)">Радиус</option>
-              <option value="Согласовать">Согласовать</option>
             </select>
           </div>
         </div>
@@ -636,7 +636,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 20</div>
+        <div>Версия: 21</div>
       </div>
     </div>
 
@@ -702,7 +702,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v20';
+    const LOCAL_KEY = 'glass_orders_db_v21';
 
     function loadLocal() {
       try {
