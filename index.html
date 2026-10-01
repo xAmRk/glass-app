@@ -293,7 +293,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 19</span>
+    <span class="version-tag">Версия: 20</span>
   </div>
 
   <div class="tabs">
@@ -345,15 +345,15 @@
         </div>
       </div>
 
-      <!-- 2. Изделие и стекло -->
+      <!-- 2. Изделие и стекло (Полки выбраны по умолчанию) -->
       <div class="card">
         <div class="card-title">📐 2. Тип изделия и стекло</div>
         <div class="grid-2">
           <div class="form-group">
             <label>Конструкция</label>
             <select id="construct_type" onchange="onConstructTypeChange()">
+              <option value="Стеклянные полки" selected>Стеклянные полки</option>
               <option value="Душевая">Душевая</option>
-              <option value="Стеклянные полки">Стеклянные полки</option>
             </select>
           </div>
           <div class="form-group">
@@ -411,53 +411,8 @@
         </div>
       </div>
 
-      <!-- 3А. БЛОК РАЗМЕРОВ: ДУШЕВАЯ -->
-      <div class="card" id="shower_measure_card">
-        <div class="card-title">🚿 3. Габариты проема душевой (мм)</div>
-
-        <div class="measure-box">
-          <label style="color:#60a5fa;">Высота (В1 Лево | В2 Центр | В3 Право)</label>
-          <div class="grid-3">
-            <input type="number" id="h_left" placeholder="В1 Лево">
-            <input type="number" id="h_center" placeholder="В2 Центр">
-            <input type="number" id="h_right" placeholder="В3 Право">
-          </div>
-        </div>
-
-        <div class="measure-box" style="margin-top: 10px;">
-          <label style="color:#60a5fa;">Ширина (Ш1 Низ/Пол | Ш2 Середина | Ш3 Верх)</label>
-          <div class="grid-3">
-            <input type="number" id="w_bottom" placeholder="Ш1 Низ">
-            <input type="number" id="w_middle" placeholder="Ш2 Середина">
-            <input type="number" id="w_top" placeholder="Ш3 Верх">
-          </div>
-        </div>
-
-        <div class="grid-2" style="margin-top: 10px;">
-          <div class="form-group">
-            <label>Завал левой стены (мм)</label>
-            <input type="text" id="tilt_left" placeholder="0 или +2 наружу">
-          </div>
-          <div class="form-group">
-            <label>Завал правой стены (мм)</label>
-            <input type="text" id="tilt_right" placeholder="0 или -3 внутрь">
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Уклон пола / поддона</label>
-            <input type="text" id="floor_slope" placeholder="напр: 4 мм к трапу">
-          </div>
-          <div class="form-group">
-            <label>Порог / Бортик (Ш х В)</label>
-            <input type="text" id="threshold_dims" placeholder="напр: 70х60 мм">
-          </div>
-        </div>
-      </div>
-
-      <!-- 3Б. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ -->
-      <div class="card" id="shelf_measure_card" style="display: none;">
+      <!-- 3А. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ (ОТКРЫТ ПО УМОЛЧАНИЮ) -->
+      <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
         <div class="niche-grid-4">
@@ -579,6 +534,51 @@
         </div>
       </div>
 
+      <!-- 3Б. БЛОК РАЗМЕРОВ: ДУШЕВАЯ (СКРЫТ ПО УМОЛЧАНИЮ) -->
+      <div class="card" id="shower_measure_card" style="display: none;">
+        <div class="card-title">🚿 3. Габариты проема душевой (мм)</div>
+
+        <div class="measure-box">
+          <label style="color:#60a5fa;">Высота (В1 Лево | В2 Центр | В3 Право)</label>
+          <div class="grid-3">
+            <input type="number" id="h_left" placeholder="В1 Лево">
+            <input type="number" id="h_center" placeholder="В2 Центр">
+            <input type="number" id="h_right" placeholder="В3 Право">
+          </div>
+        </div>
+
+        <div class="measure-box" style="margin-top: 10px;">
+          <label style="color:#60a5fa;">Ширина (Ш1 Низ/Пол | Ш2 Середина | Ш3 Верх)</label>
+          <div class="grid-3">
+            <input type="number" id="w_bottom" placeholder="Ш1 Низ">
+            <input type="number" id="w_middle" placeholder="Ш2 Середина">
+            <input type="number" id="w_top" placeholder="Ш3 Верх">
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 10px;">
+          <div class="form-group">
+            <label>Завал левой стены (мм)</label>
+            <input type="text" id="tilt_left" placeholder="0 или +2 наружу">
+          </div>
+          <div class="form-group">
+            <label>Завал правой стены (мм)</label>
+            <input type="text" id="tilt_right" placeholder="0 или -3 внутрь">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Уклон пола / поддона</label>
+            <input type="text" id="floor_slope" placeholder="напр: 4 мм к трапу">
+          </div>
+          <div class="form-group">
+            <label>Порог / Бортик (Ш х В)</label>
+            <input type="text" id="threshold_dims" placeholder="напр: 70х60 мм">
+          </div>
+        </div>
+      </div>
+
       <!-- 4. Стены и нюансы -->
       <div class="card">
         <div class="card-title">⚠️ 4. Стены и безопасность</div>
@@ -636,7 +636,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 19</div>
+        <div>Версия: 20</div>
       </div>
     </div>
 
@@ -702,7 +702,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v19';
+    const LOCAL_KEY = 'glass_orders_db_v20';
 
     function loadLocal() {
       try {
