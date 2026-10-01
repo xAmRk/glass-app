@@ -306,16 +306,16 @@
       color: #fff;
     }
 
+    /* Контейнер PDF: скрыт из видимости экрана, но доступен для html2pdf */
     #pdf-container {
-      display: none;
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      width: 800px;
       background: #ffffff;
       color: #111111;
       padding: 24px;
-      font-size: 12px;
-    }
-
-    #pdf-container.show {
-      display: block;
+      font-size: 13px;
     }
 
     .pdf-header {
@@ -336,9 +336,10 @@
 
     .pdf-table th, .pdf-table td {
       border: 1px solid #777;
-      padding: 5px 8px;
+      padding: 6px 8px;
       text-align: left;
       color: #000;
+      font-size: 12px;
     }
 
     .pdf-table th {
@@ -351,7 +352,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 38</span>
+    <span class="version-tag">Версия: 39</span>
   </div>
 
   <div class="tabs">
@@ -681,7 +682,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 38</div>
+        <div>Версия: 39</div>
       </div>
     </div>
 
@@ -746,7 +747,6 @@
     const LOCAL_KEY = 'glass_orders_db_v38';
     const CLOUD_KEY = 'orders_list_json';
 
-    // 1. Чтение из локального хранилища браузера
     function loadLocal() {
       try {
         return JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
@@ -759,7 +759,6 @@
       localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
     }
 
-    // 2. Чтение из Telegram CloudStorage (синхронизируется между ПК и телефоном)
     async function loadFromCloud() {
       return new Promise((resolve) => {
         if (tg && tg.CloudStorage) {
@@ -781,7 +780,6 @@
       });
     }
 
-    // 3. Сохранение в Telegram CloudStorage
     async function saveToCloud(list) {
       if (tg && tg.CloudStorage) {
         try {
@@ -1082,10 +1080,8 @@
       const d = getFormData();
       if (!validate(d)) return;
 
-      // 1. Сохраняем в единое облако Telegram (синхронизация ПК <-> Телефон)
       await saveOrUpdateOrder(d);
 
-      // 2. Отправляем боту в SQLite на VPS
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
@@ -1192,31 +1188,46 @@
       downloadItemPdf(d);
     }
 
+    // НАДЕЖНОЕ СКАЧИВАНИЕ PDF НА ТЕЛЕФОНЕ И ПК
     function downloadItemPdf(item) {
       fillPdf(item);
       const container = document.getElementById('pdf-container');
-      container.classList.add('show');
+      const safeName = (item.client_name || 'клиент').replace(/[^a-zA-Zа-яА-Я0-9_-]/g, '_');
+      const filename = `Замер_${item.id}_${safeName}.pdf`;
 
-      const config = {
-        margin: 10,
-        filename: `Лист_замера_${item.id}_${item.client_name.replace(/\s+/g, '_')}.pdf`,
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: filename,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(config).from(container).toPdf().get('pdf').then(function(pdf) {
+      // Прямое сохранение файла через встроенный загрузчик
+      html2pdf().set(opt).from(container).toPdf().get('pdf').then(function(pdf) {
         const blob = pdf.output('blob');
         const blobUrl = URL.createObjectURL(blob);
-        container.classList.remove('show');
 
-        const win = window.open(blobUrl, '_blank');
-        if (!win) {
-          window.print();
+        // 1. Проверяем наличие специального API Telegram для скачивания (новые версии Telegram)
+        if (tg && typeof tg.downloadFile === 'function') {
+          tg.downloadFile({ url: blobUrl, file_name: filename });
+          return;
         }
+
+        // 2. Стандартный нативный способ скачивания через элемент <a>
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
       }).catch(function(err) {
-        container.classList.remove('show');
-        window.print();
+        // Fallback через прямой .save()
+        html2pdf().set(opt).from(container).save().catch(function() {
+          alert('Не удалось сформировать PDF. Попробуйте обновить страницу.');
+        });
       });
     }
 
@@ -1255,7 +1266,7 @@
             <div class="order-actions">
               <button type="button" class="btn-action btn-action-pdf" onclick='downloadItemPdf(${JSON.stringify(item)})'>📄 PDF</button>
               <button type="button" class="btn-action btn-action-edit" onclick="editOrder('${item.id}')">✏️ Изменить</button>
-              <button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑️ Удалить</button>
+              <button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑️️ Удалить</button>
             </div>
           </div>
         `;
@@ -1274,7 +1285,6 @@
       renderList(filtered);
     }
 
-    // Инициализация при открытии приложения
     window.addEventListener('DOMContentLoaded', () => {
       loadFromCloud();
     });
