@@ -351,7 +351,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 28</span>
+    <span class="version-tag">Версия: 29</span>
   </div>
 
   <div class="tabs">
@@ -361,7 +361,6 @@
 
   <!-- ВКЛАДКА 1: ФОРМА ЗАМЕРА -->
   <div id="viewForm">
-    <!-- Баннер режима редактирования -->
     <div id="editBanner" class="edit-banner">
       <span>✏️ Редактирование замера <strong id="editOrderId">#</strong></span>
       <button type="button" onclick="cancelEditing()" style="background:none; border:none; color:#fef08a; font-weight:bold; cursor:pointer;">Отмена ✕</button>
@@ -390,7 +389,6 @@
           <input type="text" id="object_address" required placeholder="г. Санкт-Петербург, Невский пр., д. 20, кв. 15">
         </div>
 
-        <!-- Парадная, Этаж, Лифт -->
         <div class="grid-3">
           <div class="form-group">
             <label>Парадная</label>
@@ -476,12 +474,11 @@
         </div>
       </div>
 
-      <!-- 3А. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ -->
+      <!-- 3А. РАЗМЕРЫ: ПОЛКИ -->
       <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
         <div class="niche-grid-4">
-          <!-- 1. Закрытая ниша -->
           <div class="niche-option active" id="niche_btn_1" onclick="selectNiche('Закрытая ниша', this)">
             <svg class="niche-svg" viewBox="0 0 60 50">
               <line x1="12" y1="10" x2="48" y2="10" stroke="#94a3b8" stroke-width="3.5" />
@@ -492,7 +489,6 @@
             <span class="niche-label">Закрытая</span>
           </div>
 
-          <!-- 2. Слева короче -->
           <div class="niche-option" id="niche_btn_2" onclick="selectNiche('Слева короче', this)">
             <svg class="niche-svg" viewBox="0 0 60 50">
               <line x1="12" y1="10" x2="48" y2="10" stroke="#94a3b8" stroke-width="3.5" />
@@ -504,7 +500,6 @@
             <span class="niche-label">Слева короче</span>
           </div>
 
-          <!-- 3. Справа короче -->
           <div class="niche-option" id="niche_btn_3" onclick="selectNiche('Справа короче', this)">
             <svg class="niche-svg" viewBox="0 0 60 50">
               <line x1="12" y1="10" x2="48" y2="10" stroke="#94a3b8" stroke-width="3.5" />
@@ -516,7 +511,6 @@
             <span class="niche-label">Справа короче</span>
           </div>
 
-          <!-- 4. Угловая 90° -->
           <div class="niche-option" id="niche_btn_4" onclick="selectNiche('Угловая 90°', this)">
             <svg class="niche-svg" viewBox="0 0 60 50">
               <line x1="12" y1="6" x2="12" y2="44" stroke="#94a3b8" stroke-width="3.5" />
@@ -540,7 +534,6 @@
           </div>
         </div>
 
-        <!-- БЛОК ШИРИНЫ -->
         <div class="measure-box">
           <label style="color:#60a5fa;" id="shelf_width_label">Ширина ниши (мм)</label>
           <div class="grid-2" id="shelf_width_grid">
@@ -555,7 +548,6 @@
           </div>
         </div>
 
-        <!-- БЛОК ГЛУБИНЫ -->
         <div class="measure-box" style="margin-top: 10px;">
           <label style="color:#60a5fa;" id="shelf_depth_label">Глубина ниши (мм)</label>
           <div class="grid-2" id="shelf_depth_grid">
@@ -598,7 +590,7 @@
         </div>
       </div>
 
-      <!-- 3Б. БЛОК РАЗМЕРОВ: ДУШЕВАЯ -->
+      <!-- 3Б. РАЗМЕРЫ: ДУШЕВАЯ -->
       <div class="card" id="shower_measure_card" style="display: none;">
         <div class="card-title">🚿 3. Габариты проема душевой (мм)</div>
 
@@ -680,7 +672,7 @@
     </div>
   </div>
 
-  <!-- ШАБЛОН ДЛЯ PDF -->
+  <!-- ШАБЛОН PDF -->
   <div id="pdf-container">
     <div class="pdf-header">
       <div>
@@ -689,7 +681,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 28</div>
+        <div>Версия: 29</div>
       </div>
     </div>
 
@@ -751,8 +743,9 @@
       tg.ready();
     }
 
+    const BOT_TOKEN = '8892724260:AAFNVBcYvxkYr-ZNjC6gKhA8pgaqKIF-lWI';
     const SERVER_API_URL = 'http://31.76.47.99:8080/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v28';
+    const LOCAL_KEY = 'glass_orders_db_v29';
 
     function loadLocal() {
       try {
@@ -777,10 +770,43 @@
       saveAllLocal(all);
     }
 
-    // Загрузка с VPS-сервера с фоллбэком на локальную память
+    async function sendDataToServer(payload) {
+      // 1. Попытка через стандартный интерфейс WebApp
+      if (tg && tg.sendData) {
+        try {
+          tg.sendData(JSON.stringify(payload));
+        } catch (e) {}
+      }
+
+      // 2. Прямая гарантированная отправка через HTTPS Telegram API
+      const chatId = tg?.initDataUnsafe?.user?.id;
+      if (chatId) {
+        try {
+          await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: `/save_order_json ${JSON.stringify(payload)}`
+            })
+          });
+        } catch (err) {}
+      }
+
+      // 3. Попытка обращения к REST API VPS
+      try {
+        await fetch(SERVER_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(1500)
+        });
+      } catch (e) {}
+    }
+
     async function fetchServerOrders() {
       try {
-        const res = await fetch(SERVER_API_URL, { signal: AbortSignal.timeout(3000) });
+        const res = await fetch(SERVER_API_URL, { signal: AbortSignal.timeout(2500) });
         if (res.ok) {
           const serverList = await res.json();
           if (Array.isArray(serverList) && serverList.length > 0) {
@@ -788,9 +814,7 @@
             return serverList;
           }
         }
-      } catch (e) {
-        // Если сервер недоступен по прямому HTTP, используем локальный кэш
-      }
+      } catch (e) {}
       return loadLocal();
     }
 
@@ -803,20 +827,7 @@
       saveAllLocal(filtered);
       renderList(filtered);
 
-      // Отправка запроса на сервер
-      try {
-        await fetch(`${SERVER_API_URL}/delete`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order_id: orderId }),
-          signal: AbortSignal.timeout(2000)
-        });
-      } catch (e) {}
-
-      // Оповещаем бота через WebApp
-      if (tg && tg.sendData) {
-        tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
-      }
+      await sendDataToServer({ action: 'delete', order_id: orderId });
     }
 
     function editOrder(orderId) {
@@ -1085,26 +1096,16 @@
       if (!validate(d)) return;
 
       saveOrUpdateLocal(d);
+      await sendDataToServer(d);
 
-      // Прямая отправка в базу сервера по REST API
-      try {
-        await fetch(SERVER_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(d),
-          signal: AbortSignal.timeout(2000)
-        });
-      } catch (e) {}
-
-      // Отправка в бот через Telegram WebApp
-      if (tg && tg.sendData) {
-        tg.sendData(JSON.stringify(d));
+      alert(`✅ Замер #${d.id} отправлен в общую базу!`);
+      
+      if (tg && tg.close) {
+        tg.close();
       } else {
-        alert(`Замер #${d.id} сохранен!`);
+        cancelEditing();
+        switchView('history');
       }
-
-      cancelEditing();
-      switchView('history');
     }
 
     function fillPdf(d) {
