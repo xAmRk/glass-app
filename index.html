@@ -153,7 +153,7 @@
       gap: 6px;
     }
 
-    /* СЕТКА 2x2 ДЛЯ 4 СХЕМ НИШ */
+    /* АДАПТИВНАЯ СЕТКА КАРТОЧЕК НИШ */
     .niche-grid-4 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -165,7 +165,7 @@
       background: #0b1329;
       border: 2px solid var(--border);
       border-radius: 8px;
-      padding: 8px 6px;
+      padding: 10px 6px;
       text-align: center;
       cursor: pointer;
       display: flex;
@@ -173,6 +173,7 @@
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
+      min-height: 90px;
     }
 
     .niche-option.active {
@@ -181,24 +182,18 @@
     }
 
     .niche-svg {
-      width: 64px;
-      height: 52px;
+      width: 56px;
+      height: 46px;
       stroke-width: 2.5;
       fill: none;
       margin-bottom: 6px;
     }
 
     .niche-label {
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 700;
       color: var(--text);
-      line-height: 1.25;
-    }
-
-    .sub-hint {
-      font-size: 9px;
-      color: var(--hint);
-      margin-top: 2px;
+      line-height: 1.2;
     }
 
     .measure-box {
@@ -299,7 +294,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 16</span>
+    <span class="version-tag">Версия: 17</span>
   </div>
 
   <div class="tabs">
@@ -445,90 +440,66 @@
         </div>
       </div>
 
-      <!-- 3Б. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ (СХЕМЫ ВИД СВЕРХУ / В ПЛАНЕ) -->
+      <!-- 3Б. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ (КОМПАКТНЫЕ КАРТОЧКИ) -->
       <div class="card" id="shelf_measure_card" style="display: none;">
-        <div class="card-title">📦 3. Выбор схемы ниши (Вид сверху в плане)</div>
+        <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
-        <label style="margin-bottom: 6px;">Нажмите на чертеж вашей ниши:</label>
         <div class="niche-grid-4">
-
-          <!-- 1. Закрытая глухая ниша (одинаковая глубина стен) -->
-          <div class="niche-option active" id="niche_btn_1" onclick="selectNiche('Закрытая ниша (4 стороны)', this)">
+          <!-- 1. Закрытая ниша -->
+          <div class="niche-option active" id="niche_btn_1" onclick="selectNiche('Закрытая ниша', this)">
             <svg class="niche-svg" viewBox="0 0 60 50">
-              <!-- Задняя стена -->
               <line x1="12" y1="10" x2="48" y2="10" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Левая стена (глубина) -->
               <line x1="12" y1="10" x2="12" y2="38" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Правая стена (глубина - одинаковая) -->
               <line x1="48" y1="10" x2="48" y2="38" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Полка стеклянная -->
               <rect x="12" y="10" width="36" height="28" fill="rgba(59, 130, 246, 0.25)" stroke="#60a5fa" stroke-width="1.5" />
             </svg>
-            <span class="niche-label">1. Закрытая ниша</span>
-            <span class="sub-hint">Стены = глубины</span>
+            <span class="niche-label">Закрытая</span>
           </div>
 
-          <!-- 2. Слева короткая, справа длинная в глубину -->
-          <div class="niche-option" id="niche_btn_2" onclick="selectNiche('Вертикальная ниша (слева короткая, справа длинная)', this)">
+          <!-- 2. Слева короче -->
+          <div class="niche-option" id="niche_btn_2" onclick="selectNiche('Слева короче', this)">
             <svg class="niche-svg" viewBox="0 0 60 50">
-              <!-- Задняя стена -->
               <line x1="12" y1="10" x2="48" y2="10" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Левая стена (короткая глубина: до y=24) -->
               <line x1="12" y1="10" x2="12" y2="24" stroke="#f87171" stroke-width="3.5" />
-              <!-- Правая стена (длинная глубина: до y=44) -->
               <line x1="48" y1="10" x2="48" y2="44" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Полка (выравнивание по короткой левой стене) -->
               <polygon points="12,10 48,10 48,24 12,24" fill="rgba(59, 130, 246, 0.25)" stroke="#60a5fa" stroke-width="1.5" />
-              <!-- Выступ правой стены -->
               <line x1="48" y1="24" x2="48" y2="44" stroke="#60a5fa" stroke-dasharray="2,2" stroke-width="1" />
             </svg>
-            <span class="niche-label">2. Слева короткая</span>
-            <span class="sub-hint">Справа глубже ➔</span>
+            <span class="niche-label">Слева короче</span>
           </div>
 
-          <!-- 3. Слева длинная, справа короткая в глубину -->
-          <div class="niche-option" id="niche_btn_3" onclick="selectNiche('Вертикальная ниша (слева длинная, справа короткая)', this)">
+          <!-- 3. Справа короче -->
+          <div class="niche-option" id="niche_btn_3" onclick="selectNiche('Справа короче', this)">
             <svg class="niche-svg" viewBox="0 0 60 50">
-              <!-- Задняя стена -->
               <line x1="12" y1="10" x2="48" y2="10" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Левая стена (длинная глубина: до y=44) -->
               <line x1="12" y1="10" x2="12" y2="44" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Правая стена (короткая глубина: до y=24) -->
               <line x1="48" y1="10" x2="48" y2="24" stroke="#f87171" stroke-width="3.5" />
-              <!-- Полка (выравнивание по короткой правой стене) -->
               <polygon points="12,10 48,10 48,24 12,24" fill="rgba(59, 130, 246, 0.25)" stroke="#60a5fa" stroke-width="1.5" />
-              <!-- Выступ левой стены -->
               <line x1="12" y1="24" x2="12" y2="44" stroke="#60a5fa" stroke-dasharray="2,2" stroke-width="1" />
             </svg>
-            <span class="niche-label">3. Справа короткая</span>
-            <span class="sub-hint">⬅ Слева глубже</span>
+            <span class="niche-label">Справа короче</span>
           </div>
 
           <!-- 4. Угловая 90° -->
-          <div class="niche-option" id="niche_btn_4" onclick="selectNiche('Угловая ниша (90°)', this)">
+          <div class="niche-option" id="niche_btn_4" onclick="selectNiche('Угловая 90°', this)">
             <svg class="niche-svg" viewBox="0 0 60 50">
-              <!-- Стена 1 (вертикальная) -->
               <line x1="12" y1="6" x2="12" y2="44" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Стена 2 (горизонтальная) -->
               <line x1="12" y1="44" x2="50" y2="44" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Угловая полка (секторная / радиусная) -->
               <path d="M 12 16 A 28 28 0 0 1 40 44 L 12 44 Z" fill="rgba(59, 130, 246, 0.25)" stroke="#60a5fa" stroke-width="1.5" />
             </svg>
-            <span class="niche-label">4. Угловая 90°</span>
-            <span class="sub-hint">В угол стен</span>
+            <span class="niche-label">Угловая 90°</span>
           </div>
-
         </div>
 
-        <input type="hidden" id="shelf_niche_type" value="Закрытая ниша (4 стороны)">
+        <input type="hidden" id="shelf_niche_type" value="Закрытая ниша">
 
         <div class="grid-2">
           <div class="form-group">
-            <label>Количество полок (шт.) *</label>
+            <label>Кол-во полок (шт.) *</label>
             <input type="number" id="shelf_count" placeholder="напр: 3">
           </div>
           <div class="form-group">
-            <label>Высота ниши / проема (мм)</label>
+            <label>Высота ниши (мм)</label>
             <input type="number" id="shelf_h_total" placeholder="напр: 1200">
           </div>
         </div>
@@ -573,9 +544,9 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Обработка кромки</label>
+            <label>Кромка</label>
             <select id="shelf_edge_type">
-              <option value="Еврокромка полировка">Полировка (еврокромка)</option>
+              <option value="Еврокромка полировка">Полировка</option>
               <option value="Фацет">Фацет</option>
               <option value="Шлифовка">Шлифовка</option>
               <option value="Согласовать">Согласовать</option>
@@ -585,7 +556,7 @@
             <label>Углы полок</label>
             <select id="shelf_corners">
               <option value="Прямые (90°)">Прямые (90°)</option>
-              <option value="Радиус (скругление)">Радиус (скругление)</option>
+              <option value="Радиус (скругление)">Радиус</option>
               <option value="Согласовать">Согласовать</option>
             </select>
           </div>
@@ -649,7 +620,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 16</div>
+        <div>Версия: 17</div>
       </div>
     </div>
 
@@ -715,7 +686,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v16';
+    const LOCAL_KEY = 'glass_orders_db_v17';
 
     function loadLocal() {
       try {
@@ -752,7 +723,6 @@
       document.getElementById('shelf_measure_card').style.display = isShelf ? 'block' : 'none';
     }
 
-    // Выбор схемы ниши по клику на карточку чертежа
     function selectNiche(nicheValue, element) {
       document.querySelectorAll('.niche-option').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
@@ -767,25 +737,25 @@
 
       if (nicheValue.includes('Угловая')) {
         wLabel.innerText = 'Катеты угла стен (мм)';
-        w1Sub.innerText = 'Стена слева (катет 1)';
-        w2Sub.innerText = 'Стена справа (катет 2)';
+        w1Sub.innerText = 'Стена слева';
+        w2Sub.innerText = 'Стена справа';
         dLabel.innerText = 'Вылет полки (мм)';
-        d1Sub.innerText = 'Вылет по диагонали';
-        d2Sub.innerText = 'Радиус/Фаска R (если есть)';
-      } else if (nicheValue.includes('слева короткая')) {
+        d1Sub.innerText = 'По диагонали';
+        d2Sub.innerText = 'Радиус / Фаска';
+      } else if (nicheValue.includes('Слева короче')) {
         wLabel.innerText = 'Ширина ниши (мм)';
         w1Sub.innerText = 'Ш1 (передний край)';
         w2Sub.innerText = 'Ш2 (задняя стена)';
-        dLabel.innerText = 'Глубина стен (в плане) (мм)';
-        d1Sub.innerText = 'Глубина СЛЕВА (короткая ⚠️)';
-        d2Sub.innerText = 'Глубина СПРАВА (длинная)';
-      } else if (nicheValue.includes('справа короткая')) {
+        dLabel.innerText = 'Глубина стен (мм)';
+        d1Sub.innerText = 'Слева (короткая ⚠️)';
+        d2Sub.innerText = 'Справа (длинная)';
+      } else if (nicheValue.includes('Справа короче')) {
         wLabel.innerText = 'Ширина ниши (мм)';
         w1Sub.innerText = 'Ш1 (передний край)';
         w2Sub.innerText = 'Ш2 (задняя стена)';
-        dLabel.innerText = 'Глубина стен (в плане) (мм)';
-        d1Sub.innerText = 'Глубина СЛЕВА (длинная)';
-        d2Sub.innerText = 'Глубина СПРАВА (короткая ⚠️)';
+        dLabel.innerText = 'Глубина стен (мм)';
+        d1Sub.innerText = 'Слева (длинная)';
+        d2Sub.innerText = 'Справа (короткая ⚠️)';
       } else {
         wLabel.innerText = 'Ширина ниши (мм)';
         w1Sub.innerText = 'Ш1 (передний край)';
@@ -932,7 +902,7 @@
         mContainer.innerHTML = `
           <table class="pdf-table">
             <tr>
-              <th style="width: 35%;">Схема ниши (вид в плане)</th>
+              <th style="width: 35%;">Схема ниши</th>
               <td><strong>${d.shelf_niche_type}</strong></td>
             </tr>
             <tr>
@@ -944,7 +914,7 @@
               <td>Передний край: ${d.shelf_w_front} мм | Задняя стенка: ${d.shelf_w_back} мм</td>
             </tr>
             <tr>
-              <th>Глубина в плане (Лево / Право)</th>
+              <th>Глубина стен (Лево / Право)</th>
               <td>Слева: ${d.shelf_d_left} мм | Справа: ${d.shelf_d_right} мм</td>
             </tr>
           </table>
