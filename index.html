@@ -304,7 +304,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 23</span>
+    <span class="version-tag">Версия: 24</span>
   </div>
 
   <div class="tabs">
@@ -588,32 +588,21 @@
         </div>
       </div>
 
-      <!-- 4. Стены и нюансы -->
+      <!-- 4. Стены и примечания (Обновленный блок) -->
       <div class="card">
-        <div class="card-title">⚠️ 4. Стены и безопасность</div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Материал стен</label>
-            <select id="wall_material">
-              <option value="Керамогранит">Керамогранит</option>
-              <option value="Керамическая плитка">Керамическая плитка</option>
-              <option value="ГКЛ с закладной">ГКЛ (с закладной)</option>
-              <option value="ГКЛ БЕЗ закладной">ГКЛ (БЕЗ закладной)</option>
-              <option value="Бетон / Кирпич">Бетон / Кирпич</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Ручка / Комплектация</label>
-            <input type="text" id="hardware_type" placeholder="Кноб / Скоба 450мм / Крепеж">
-          </div>
+        <div class="card-title">🧱 4. Стены и примечания</div>
+        <div class="form-group">
+          <label>Материал стен</label>
+          <select id="wall_material">
+            <option value="Керамогранит">Керамогранит</option>
+            <option value="Керамическая плитка">Керамическая плитка</option>
+            <option value="Гипрок">Гипрок</option>
+            <option value="Бетон">Бетон</option>
+          </select>
         </div>
         <div class="form-group">
-          <label>Трассы скрытых коммуникаций (трубы, кабель)</label>
-          <input type="text" id="pipes_warning" placeholder="Проводка в стене, трубы водоснабжения...">
-        </div>
-        <div class="form-group">
-          <label>Примечания к раскрою и установке</label>
-          <textarea id="notes" rows="2" placeholder="Вырезы, шаг между полками, особые пожелания..."></textarea>
+          <label>Примечания</label>
+          <textarea id="notes" rows="3" placeholder="Особые пожелания, вырезы, расположение розеток или крепежа..."></textarea>
         </div>
       </div>
 
@@ -645,7 +634,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 23</div>
+        <div>Версия: 24</div>
       </div>
     </div>
 
@@ -685,15 +674,11 @@
 
     <table class="pdf-table" style="margin-top: 8px;">
       <tr>
-        <th style="width: 30%;">Материал основания</th>
+        <th style="width: 30%;">Материал стен</th>
         <td id="pdf_wall"></td>
       </tr>
       <tr>
-        <th>Зона риска (коммуникации)</th>
-        <td id="pdf_pipes"></td>
-      </tr>
-      <tr>
-        <th>Особые отметки / Примечания</th>
+        <th>Примечания</th>
         <td id="pdf_notes"></td>
       </tr>
     </table>
@@ -711,7 +696,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v23';
+    const LOCAL_KEY = 'glass_orders_db_v24';
 
     function loadLocal() {
       try {
@@ -846,9 +831,7 @@
         glass_thickness: document.getElementById('glass_thickness').value,
         glass_color: fullGlass,
         hardware_color: hwColor,
-        hardware_type: document.getElementById('hardware_type').value.trim() || 'Стандарт',
         wall_material: document.getElementById('wall_material').value,
-        pipes_warning: document.getElementById('pipes_warning').value.trim() || 'Нет',
         notes: document.getElementById('notes').value.trim() || '-'
       };
 
@@ -931,7 +914,7 @@
       
       const hwInfo = (d.construct_type === 'Стеклянные полки')
         ? `Цвет: ${d.hardware_color} | Крепеж: ${d.shelf_holder_type} | Кромка: ${d.shelf_edge_type} | Углы: ${d.shelf_corners}`
-        : `Цвет: ${d.hardware_color} (${d.hardware_type})`;
+        : `Цвет: ${d.hardware_color}`;
       document.getElementById('pdf_hardware').innerText = hwInfo;
 
       const mContainer = document.getElementById('pdf_measurements_content');
@@ -997,7 +980,6 @@
       }
 
       document.getElementById('pdf_wall').innerText = d.wall_material;
-      document.getElementById('pdf_pipes').innerText = d.pipes_warning;
       document.getElementById('pdf_notes').innerText = d.notes;
     }
 
