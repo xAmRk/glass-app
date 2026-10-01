@@ -1,754 +1,261 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Замерщик: Стекло и Душевые</title>
-  <!-- Telegram WebApp SDK -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Генерация PDF на клиенте -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
-    :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --text: #f8fafc;
-      --hint: #94a3b8;
-      --primary: #3b82f6;
-      --btn-text: #ffffff;
-      --border: #334155;
-      --input-bg: #0b1329;
-      --input-text: #ffffff;
-      --accent: #22c55e;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 12px;
-      font-size: 14px;
-      line-height: 1.4;
-      padding-bottom: 95px;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .version-tag {
-      font-size: 11px;
-      background: #334155;
-      color: #93c5fd;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-weight: 700;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .tab {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid var(--border);
-      background: var(--card-bg);
-      color: var(--text);
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-    }
-
-    .tab.active {
-      background: var(--primary);
-      color: var(--btn-text);
-      border-color: var(--primary);
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-
-    .card-title {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #60a5fa;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .form-group {
-      margin-bottom: 10px;
-    }
-
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--hint);
-      margin-bottom: 4px;
-    }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      background-color: var(--input-bg) !important;
-      color: var(--input-text) !important;
-      font-size: 14px;
-      outline: none;
-      -webkit-appearance: none;
-    }
-
-    input::placeholder, textarea::placeholder {
-      color: #64748b !important;
-      opacity: 1;
-    }
-
-    select option {
-      background-color: #0b1329;
-      color: #ffffff;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 1px var(--primary);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 6px;
-    }
-
-    .measure-box {
-      background: rgba(59, 130, 246, 0.08);
-      border: 1px dashed var(--primary);
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 6px;
-    }
-
-    .footer-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--card-bg);
-      padding: 12px 16px;
-      box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
-      display: flex;
-      gap: 8px;
-      z-index: 100;
-    }
-
-    .btn-submit {
-      flex: 2;
-      background: var(--primary);
-      color: var(--btn-text);
-      border: none;
-      padding: 13px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .btn-pdf {
-      flex: 1;
-      background: var(--accent);
-      color: #ffffff;
-      border: none;
-      padding: 13px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .order-item {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 8px;
-      background: #1e293b;
-    }
-
-    /* Бланк замера для PDF */
-    #pdf-container {
-      display: none;
-      background: #ffffff;
-      color: #111111;
-      padding: 24px;
-      font-size: 12px;
-    }
-
-    #pdf-container.show {
-      display: block;
-    }
-
-    .pdf-header {
-      border-bottom: 2px solid #222;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .pdf-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 6px;
-      margin-bottom: 12px;
-    }
-
-    .pdf-table th, .pdf-table td {
-      border: 1px solid #777;
-      padding: 5px 8px;
-      text-align: left;
-      color: #000;
-    }
-
-    .pdf-table th {
-      background-color: #f1f5f9;
-      color: #000;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="top-bar">
-    <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 10</span>
-  </div>
-
-  <div class="tabs">
-    <button type="button" class="tab active" id="tabNew" onclick="switchView('new')">Новый замер</button>
-    <button type="button" class="tab" id="tabHistory" onclick="switchView('history')">База замеров</button>
-  </div>
-
-  <!-- ВКЛАДКА 1: ФОРМА ЗАМЕРА -->
-  <div id="viewForm">
-    <form id="formEl" onsubmit="event.preventDefault();">
-
-      <!-- 1. Клиент и адрес -->
-      <div class="card">
-        <div class="card-title">👤 1. Заказчик и объект</div>
-        <div class="form-group">
-          <label>ФИО Заказчика *</label>
-          <input type="text" id="client_name" required placeholder="Иванов Сергей">
-        </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Телефон *</label>
-            <input type="tel" id="client_phone" required placeholder="+7 999 123-45-67">
-          </div>
-          <div class="form-group">
-            <label>Этаж / Лифт</label>
-            <input type="text" id="floor_info" placeholder="7 эт., лифт есть">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Адрес объекта *</label>
-          <input type="text" id="object_address" required placeholder="г. Москва, ул. Мира, д. 10, кв. 42">
-        </div>
-      </div>
-
-      <!-- 2. Изделие и стекло -->
-      <div class="card">
-        <div class="card-title">📐 2. Тип изделия и стекло</div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Конструкция</label>
-            <select id="construct_type">
-              <option value="Душевая">Душевая</option>
-              <option value="Стеклянные полки">Стеклянные полки</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Толщина стекла</label>
-            <select id="glass_thickness">
-              <option value="4 мм">4 мм</option>
-              <option value="6 мм">6 мм</option>
-              <option value="8 мм" selected>8 мм</option>
-              <option value="10 мм">10 мм</option>
-              <option value="12 мм">12 мм</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Цвет стекла</label>
-            <select id="glass_color">
-              <option value="Бесцветное">Бесцветное</option>
-              <option value="Серое">Серое</option>
-              <option value="Бронза">Бронза</option>
-              <option value="Кристалл">Кристалл</option>
-              <option value="Черное">Черное</option>
-              <option value="Рифленое">Рифленое</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Матирование</label>
-            <select id="glass_matte">
-              <option value="Нет">Нет</option>
-              <option value="Хим мат">Хим мат</option>
-              <option value="Пескоструй">Пескоструй</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Выбор цвета фурнитуры -->
-        <div class="form-group">
-          <label>Цвет фурнитуры</label>
-          <select id="hardware_color" onchange="toggleCustomHardwareColor()">
-            <option value="Хром">Хром</option>
-            <option value="Черный">Черный</option>
-            <option value="Бронза">Бронза</option>
-            <option value="Золото">Золото</option>
-            <option value="Другой">Другой</option>
-          </select>
-        </div>
-
-        <!-- Поле ручного ввода цвета (скрыто, пока не выбран "Другой") -->
-        <div class="form-group" id="custom_hw_group" style="display: none;">
-          <label>Укажите свой цвет фурнитуры *</label>
-          <input type="text" id="custom_hw_color" placeholder="например: Белый матовый, Графит, Медь">
-        </div>
-      </div>
-
-      <!-- 3. Размеры в мм -->
-      <div class="card">
-        <div class="card-title">📏 3. Замеры проема (мм)</div>
-
-        <div class="measure-box">
-          <label style="color:#60a5fa;">Высота (В1 Лево | В2 Центр | В3 Право)</label>
-          <div class="grid-3">
-            <input type="number" id="h_left" placeholder="В1 Лево" required>
-            <input type="number" id="h_center" placeholder="В2 Центр" required>
-            <input type="number" id="h_right" placeholder="В3 Право" required>
-          </div>
-        </div>
-
-        <div class="measure-box" style="margin-top: 10px;">
-          <label style="color:#60a5fa;">Ширина (Ш1 Низ/Пол | Ш2 Середина | Ш3 Верх)</label>
-          <div class="grid-3">
-            <input type="number" id="w_bottom" placeholder="Ш1 Низ" required>
-            <input type="number" id="w_middle" placeholder="Ш2 Середина" required>
-            <input type="number" id="w_top" placeholder="Ш3 Верх" required>
-          </div>
-        </div>
-
-        <div class="grid-2" style="margin-top: 10px;">
-          <div class="form-group">
-            <label>Завал левой стены (мм)</label>
-            <input type="text" id="tilt_left" placeholder="0 или +2 наружу">
-          </div>
-          <div class="form-group">
-            <label>Завал правой стены (мм)</label>
-            <input type="text" id="tilt_right" placeholder="0 или -3 внутрь">
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Уклон пола / поддона</label>
-            <input type="text" id="floor_slope" placeholder="напр: 4 мм к трапу">
-          </div>
-          <div class="form-group">
-            <label>Порог / Бортик (Ш х В)</label>
-            <input type="text" id="threshold_dims" placeholder="напр: 70х60 мм">
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. Стены и нюансы -->
-      <div class="card">
-        <div class="card-title">⚠️ 4. Стены и безопасность</div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Материал стен</label>
-            <select id="wall_material">
-              <option value="Керамогранит">Керамогранит</option>
-              <option value="Керамическая плитка">Керамическая плитка</option>
-              <option value="ГКЛ с закладной">ГКЛ (с закладной)</option>
-              <option value="ГКЛ БЕЗ закладной">ГКЛ (БЕЗ закладной)</option>
-              <option value="Бетон / Кирпич">Бетон / Кирпич</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Ручка / Комплектация</label>
-            <input type="text" id="hardware_type" placeholder="Кноб / Скоба 450мм">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Трассы скрытых коммуникаций (трубы, кабель)</label>
-          <input type="text" id="pipes_warning" placeholder="Проводка в левом углу на высоте 1200мм">
-        </div>
-        <div class="form-group">
-          <label>Примечания к раскрою и установке</label>
-          <textarea id="notes" rows="2" placeholder="Вырезы под бортик, ребро жесткости..."></textarea>
-        </div>
-      </div>
-
-      <div class="footer-panel">
-        <button type="button" class="btn-pdf" onclick="generatePdfSheet()">📄 PDF Лист</button>
-        <button type="button" class="btn-submit" onclick="submitToBot()">✅ Внести замер</button>
-      </div>
-
-    </form>
-  </div>
-
-  <!-- ВКЛАДКА 2: ИСТОРИЯ И ПОИСК -->
-  <div id="viewHistory" style="display: none;">
-    <div class="card">
-      <div class="card-title">🔍 Поиск по сохраненным замерам</div>
-      <div class="form-group">
-        <input type="text" id="searchInput" oninput="doSearch()" placeholder="Поиск по клиенту, адресу или телефону...">
-      </div>
-      <div id="historyList"></div>
-    </div>
-  </div>
-
-  <!-- ШАБЛОН ДЛЯ PDF -->
-  <div id="pdf-container">
-    <div class="pdf-header">
-      <div>
-        <h2 style="font-size: 17px; margin-bottom: 3px;">ТЕХНИЧЕСКИЙ ЛИСТ ЗАМЕРА №<span id="pdf_id"></span></h2>
-        <div style="font-size: 11px; color:#555;">Изготовление и монтаж стеклянных конструкций</div>
-      </div>
-      <div style="text-align: right; font-size: 11px;">
-        <div id="pdf_date"></div>
-        <div>Версия: 10</div>
-      </div>
-    </div>
-
-    <table class="pdf-table">
-      <tr>
-        <th style="width: 25%;">Клиент</th>
-        <td id="pdf_client" style="width: 75%;"></td>
-      </tr>
-      <tr>
-        <th>Телефон</th>
-        <td id="pdf_phone"></td>
-      </tr>
-      <tr>
-        <th>Адрес объекта</th>
-        <td id="pdf_address"></td>
-      </tr>
-      <tr>
-        <th>Подъем / Этаж</th>
-        <td id="pdf_floor"></td>
-      </tr>
-      <tr>
-        <th>Тип конструкции</th>
-        <td id="pdf_type" style="font-weight: bold;"></td>
-      </tr>
-      <tr>
-        <th>Характеристики стекла</th>
-        <td id="pdf_glass"></td>
-      </tr>
-      <tr>
-        <th>Фурнитура</th>
-        <td id="pdf_hardware"></td>
-      </tr>
-    </table>
-
-    <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 12px; color: #000;">Световой проем в чистовой отделке (мм):</h4>
-    <table class="pdf-table">
-      <thead>
-        <tr>
-          <th>Измерение</th>
-          <th>Точка 1 (Лево / Низ)</th>
-          <th>Точка 2 (Центр / Средняя)</th>
-          <th>Точка 3 (Право / Верх)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Высота (H)</strong></td>
-          <td id="pdf_h1"></td>
-          <td id="pdf_h2"></td>
-          <td id="pdf_h3"></td>
-        </tr>
-        <tr>
-          <td><strong>Ширина (W)</strong></td>
-          <td id="pdf_w1"></td>
-          <td id="pdf_w2"></td>
-          <td id="pdf_w3"></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <table class="pdf-table">
-      <tr>
-        <th style="width: 30%;">Отклонения стен</th>
-        <td id="pdf_tilt"></td>
-      </tr>
-      <tr>
-        <th>Уклон пола / Порог</th>
-        <td id="pdf_slope"></td>
-      </tr>
-      <tr>
-        <th>Материал основания</th>
-        <td id="pdf_wall"></td>
-      </tr>
-      <tr>
-        <th>Зона риска (коммуникации)</th>
-        <td id="pdf_pipes"></td>
-      </tr>
-      <tr>
-        <th>Особые отметки</th>
-        <td id="pdf_notes"></td>
-      </tr>
-    </table>
-
-    <div style="margin-top: 35px; display: flex; justify-content: space-between; font-size: 11px; color:#000;">
-      <div>Замер произвел: ____________________</div>
-      <div>С размерами ознакомлен (Заказчик): ____________________</div>
-    </div>
-  </div>
-
-  <script>
-    const tg = window.Telegram?.WebApp;
-    if (tg) {
-      tg.expand();
-      tg.ready();
-    }
-
-    const LOCAL_KEY = 'glass_orders_db_v10';
-
-    function loadLocal() {
-      try {
-        return JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
-      } catch (e) {
-        return [];
-      }
-    }
-
-    function saveLocal(item) {
-      const all = loadLocal();
-      all.unshift(item);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
-    }
-
-    function switchView(tab) {
-      document.getElementById('tabNew').classList.toggle('active', tab === 'new');
-      document.getElementById('tabHistory').classList.toggle('active', tab === 'history');
-      document.getElementById('viewForm').style.display = tab === 'new' ? 'block' : 'none';
-      document.getElementById('viewHistory').style.display = tab === 'history' ? 'block' : 'none';
-
-      const footer = document.querySelector('.footer-panel');
-      if (footer) footer.style.display = tab === 'new' ? 'flex' : 'none';
-
-      if (tab === 'history') {
-        renderList();
-      }
-    }
-
-    // Переключение видимости поля для ввода цвета
-    function toggleCustomHardwareColor() {
-      const hwSelect = document.getElementById('hardware_color').value;
-      const customGroup = document.getElementById('custom_hw_group');
-      if (hwSelect === 'Другой') {
-        customGroup.style.display = 'block';
-      } else {
-        customGroup.style.display = 'none';
-        document.getElementById('custom_hw_color').value = '';
-      }
-    }
-
-    function getFormData() {
-      const colorVal = document.getElementById('glass_color').value;
-      const matteVal = document.getElementById('glass_matte').value;
-      const fullGlass = (matteVal === 'Нет') ? colorVal : `${colorVal}, ${matteVal}`;
-
-      // Определение цвета фурнитуры
-      let hwColor = document.getElementById('hardware_color').value;
-      if (hwColor === 'Другой') {
-        const customVal = document.getElementById('custom_hw_color').value.trim();
-        hwColor = customVal ? customVal : 'Другой';
-      }
-
-      return {
-        id: Date.now().toString().slice(-6),
-        date: new Date().toLocaleDateString('ru-RU'),
-        client_name: document.getElementById('client_name').value.trim(),
-        client_phone: document.getElementById('client_phone').value.trim(),
-        floor_info: document.getElementById('floor_info').value.trim() || 'Не указан',
-        object_address: document.getElementById('object_address').value.trim(),
-        construct_type: document.getElementById('construct_type').value,
-        glass_thickness: document.getElementById('glass_thickness').value,
-        glass_color: fullGlass,
-        hardware_color: hwColor,
-        hardware_type: document.getElementById('hardware_type').value.trim() || 'Стандарт',
-        h_left: document.getElementById('h_left').value.trim(),
-        h_center: document.getElementById('h_center').value.trim(),
-        h_right: document.getElementById('h_right').value.trim(),
-        w_bottom: document.getElementById('w_bottom').value.trim(),
-        w_middle: document.getElementById('w_middle').value.trim(),
-        w_top: document.getElementById('w_top').value.trim(),
-        tilt_left: document.getElementById('tilt_left').value.trim() || '0 (в норме)',
-        tilt_right: document.getElementById('tilt_right').value.trim() || '0 (в норме)',
-        floor_slope: document.getElementById('floor_slope').value.trim() || 'Без уклона',
-        threshold_dims: document.getElementById('threshold_dims').value.trim() || 'Без порога',
-        wall_material: document.getElementById('wall_material').value,
-        pipes_warning: document.getElementById('pipes_warning').value.trim() || 'Нет',
-        notes: document.getElementById('notes').value.trim() || '-'
-      };
-    }
-
-    function validate(data) {
-      if (!data.client_name || !data.client_phone || !data.object_address) {
-        alert('Заполните: Имя, Телефон и Адрес');
-        return false;
-      }
-      if (!data.h_left || !data.h_center || !data.h_right || !data.w_bottom || !data.w_middle || !data.w_top) {
-        alert('Заполните все 3 высоты и 3 ширины в мм');
-        return false;
-      }
-      if (document.getElementById('hardware_color').value === 'Другой' && !document.getElementById('custom_hw_color').value.trim()) {
-        alert('Укажите название цвета фурнитуры');
-        return false;
-      }
-      return true;
-    }
-
-    function submitToBot() {
-      const d = getFormData();
-      if (!validate(d)) return;
-
-      saveLocal(d);
-
-      if (tg && tg.sendData) {
-        tg.sendData(JSON.stringify(d));
-      } else {
-        alert('Замер сохранен! Откройте через Telegram для отправки сообщения в чат.');
-      }
-    }
-
-    function fillPdf(d) {
-      document.getElementById('pdf_id').innerText = d.id;
-      document.getElementById('pdf_date').innerText = d.date;
-      document.getElementById('pdf_client').innerText = d.client_name;
-      document.getElementById('pdf_phone').innerText = d.client_phone;
-      document.getElementById('pdf_address').innerText = d.object_address;
-      document.getElementById('pdf_floor').innerText = d.floor_info;
-      document.getElementById('pdf_type').innerText = d.construct_type;
-      document.getElementById('pdf_glass').innerText = `${d.glass_thickness}, ${d.glass_color}`;
-      document.getElementById('pdf_hardware').innerText = `${d.hardware_color} (${d.hardware_type})`;
-
-      document.getElementById('pdf_h1').innerText = d.h_left + ' мм';
-      document.getElementById('pdf_h2').innerText = d.h_center + ' мм';
-      document.getElementById('pdf_h3').innerText = d.h_right + ' мм';
-
-      document.getElementById('pdf_w1').innerText = d.w_bottom + ' мм';
-      document.getElementById('pdf_w2').innerText = d.w_middle + ' мм';
-      document.getElementById('pdf_w3').innerText = d.w_top + ' мм';
-
-      document.getElementById('pdf_tilt').innerText = `Л: ${d.tilt_left} | П: ${d.tilt_right}`;
-      document.getElementById('pdf_slope').innerText = `${d.floor_slope} (Порог: ${d.threshold_dims})`;
-      document.getElementById('pdf_wall').innerText = d.wall_material;
-      document.getElementById('pdf_pipes').innerText = d.pipes_warning;
-      document.getElementById('pdf_notes').innerText = d.notes;
-    }
-
-    function generatePdfSheet() {
-      const d = getFormData();
-      if (!validate(d)) return;
-      downloadItemPdf(d);
-    }
-
-    function downloadItemPdf(item) {
-      fillPdf(item);
-      const container = document.getElementById('pdf-container');
-      container.classList.add('show');
-
-      const config = {
-        margin: 10,
-        filename: `Лист_замера_${item.id}_${item.client_name.replace(/\s+/g, '_')}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(config).from(container).save().then(() => {
-        container.classList.remove('show');
-      });
-    }
-
-    function renderList(customList) {
-      const list = customList || loadLocal();
-      const target = document.getElementById('historyList');
-
-      if (!list.length) {
-        target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 25px;">Замеров пока нет</p>';
-        return;
-      }
-
-      target.innerHTML = list.map(item => `
-        <div class="order-item">
-          <div style="display:flex; justify-content:space-between; font-weight:700;">
-            <span>#${item.id} — ${item.client_name}</span>
-            <span style="font-size:12px; color:var(--hint);">${item.date}</span>
-          </div>
-          <div style="font-size:12px; color:#94a3b8; margin: 2px 0;">📍 ${item.object_address}</div>
-          <div style="font-size:12px; color:#60a5fa; font-weight:600;">
-            ${item.construct_type} (${item.glass_thickness}, ${item.glass_color}) | Фурнитура: ${item.hardware_color}
-          </div>
-          <div style="font-size:11px; color:#cbd5e1; margin-top:2px;">
-            В: ${item.h_left}/${item.h_center}/${item.h_right} мм | Ш: ${item.w_bottom}/${item.w_middle}/${item.w_top} мм
-          </div>
-          <button type="button" style="margin-top:6px; padding:6px 10px; font-size:11px; background:#1e40af; color:#fff; border:none; border-radius:4px; cursor:pointer;" onclick='downloadItemPdf(${JSON.stringify(item)})'>Скачать PDF</button>
-        </div>
-      `).join('');
-    }
-
-    function doSearch() {
-      const q = document.getElementById('searchInput').value.toLowerCase();
-      const all = loadLocal();
-      const filtered = all.filter(o => 
-        (o.client_name && o.client_name.toLowerCase().includes(q)) ||
-        (o.object_address && o.object_address.toLowerCase().includes(q)) ||
-        (o.client_phone && o.client_phone.toLowerCase().includes(q)) ||
-        (o.id && o.id.includes(q))
-      );
-      renderList(filtered);
-    }
-  </script>
-</body>
-</html>
+"""
+Telegram Bot для замерщика стеклянных полок и душевых перегородок.
+Связан с WebApp на GitHub Pages: https://xamrk.github.io/glass-app/
+Версия: 10
+"""
+
+import asyncio
+import json
+import logging
+import aiosqlite
+from aiogram import Bot, Dispatcher, F, types
+from aiogram.filters import Command, CommandStart
+from aiogram.types import (
+    KeyboardButton,
+    MenuButtonWebApp,
+    ReplyKeyboardMarkup,
+    WebAppInfo,
+)
+
+# --- НАСТРОЙКИ ---
+BOT_TOKEN = "8892724260:AAFNVBcYvxkYr-ZNjC6gKhA8pgaqKIF-lWI"
+WEBAPP_URL = "https://xamrk.github.io/glass-app/"
+DB_FILE = "measurements.db"
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
+
+# --- БАЗА ДАННЫХ SQLITE ---
+
+async def init_db():
+    async with aiosqlite.connect(DB_FILE) as db:
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS orders (
+                id TEXT PRIMARY KEY,
+                user_id INTEGER,
+                date TEXT,
+                client_name TEXT,
+                client_phone TEXT,
+                object_address TEXT,
+                floor_info TEXT,
+                construct_type TEXT,
+                glass_thickness TEXT,
+                glass_color TEXT,
+                hardware_color TEXT,
+                hardware_type TEXT,
+                h_left INTEGER,
+                h_center INTEGER,
+                h_right INTEGER,
+                w_bottom INTEGER,
+                w_middle INTEGER,
+                w_top INTEGER,
+                tilt_left TEXT,
+                tilt_right TEXT,
+                floor_slope TEXT,
+                threshold_dims TEXT,
+                wall_material TEXT,
+                pipes_warning TEXT,
+                notes TEXT
+            )
+        """)
+        await db.commit()
+    logger.info("База данных SQLite готова. Версия: 10")
+
+async def save_order(data: dict, user_id: int):
+    async with aiosqlite.connect(DB_FILE) as db:
+        await db.execute("""
+            INSERT OR REPLACE INTO orders (
+                id, user_id, date, client_name, client_phone, object_address,
+                floor_info, construct_type, glass_thickness, glass_color,
+                hardware_color, hardware_type, h_left, h_center, h_right,
+                w_bottom, w_middle, w_top, tilt_left, tilt_right,
+                floor_slope, threshold_dims, wall_material, pipes_warning, notes
+            ) VALUES (
+                :id, :user_id, :date, :client_name, :client_phone, :object_address,
+                :floor_info, :construct_type, :glass_thickness, :glass_color,
+                :hardware_color, :hardware_type, :h_left, :h_center, :h_right,
+                :w_bottom, :w_middle, :w_top, :tilt_left, :tilt_right,
+                :floor_slope, :threshold_dims, :wall_material, :pipes_warning, :notes
+            )
+        """, {**data, "user_id": user_id})
+        await db.commit()
+
+async def search_orders(query: str):
+    q = f"%{query}%"
+    async with aiosqlite.connect(DB_FILE) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("""
+            SELECT id, client_name, client_phone, object_address, construct_type, date
+            FROM orders
+            WHERE client_name LIKE ? OR client_phone LIKE ? OR object_address LIKE ? OR id LIKE ?
+            ORDER BY ROWID DESC
+            LIMIT 10
+        """, (q, q, q, q))
+        return await cursor.fetchall()
+
+async def get_order_by_id(order_id: str):
+    async with aiosqlite.connect(DB_FILE) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("SELECT * FROM orders WHERE id = ?", (order_id,))
+        return await cursor.fetchone()
+
+# --- КЛАВИАТУРЫ ---
+
+def get_main_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="📐 Открыть бланк замера", web_app=WebAppInfo(url=WEBAPP_URL))],
+            [KeyboardButton(text="🔎 Поиск замеров"), KeyboardButton(text="📦 Последние 5")]
+        ],
+        resize_keyboard=True
+    )
+
+# --- ОБРАБОТЧИКИ СООБЩЕНИЙ ---
+
+@dp.message(CommandStart())
+async def cmd_start(message: types.Message):
+    try:
+        await bot.set_chat_menu_button(
+            chat_id=message.chat.id,
+            menu_button=MenuButtonWebApp(text="Замер", web_app=WebAppInfo(url=WEBAPP_URL))
+        )
+    except Exception as e:
+        logger.warning(f"Не удалось настроить Menu Button: {e}")
+
+    await message.answer(
+        "👋 **Бот замерщика стекла и душевых перегородок** (Версия: 10)\n\n"
+        "Нажмите кнопку **«📐 Открыть бланк замера»** внизу или кнопку **«Замер»** слева от поля ввода текста.\n\n"
+        "Управление базой:\n"
+        "• `/search <текст>` — поиск замера по фамилии или адресу\n"
+        "• `/order <номер>` — полная карточка замера",
+        reply_markup=get_main_keyboard(),
+        parse_mode="Markdown"
+    )
+
+@dp.message(F.text == "📦 Последние 5")
+async def show_recent_orders(message: types.Message):
+    async with aiosqlite.connect(DB_FILE) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute("""
+            SELECT id, client_name, client_phone, object_address, construct_type, date 
+            FROM orders ORDER BY ROWID DESC LIMIT 5
+        """)
+        rows = await cursor.fetchall()
+
+    if not rows:
+        await message.answer("В базе пока нет сохраненных замеров.")
+        return
+
+    text = "📋 **Последние сохраненные замеры:**\n\n"
+    for r in rows:
+        text += (
+            f"🔹 **Заказ #{r['id']}** ({r['date']})\n"
+            f"👤 {r['client_name']} | 📞 {r['client_phone']}\n"
+            f"📍 {r['object_address']}\n"
+            f"📐 {r['construct_type']}\n"
+            f"Открыть: `/order {r['id']}`\n\n"
+        )
+    await message.answer(text, parse_mode="Markdown")
+
+@dp.message(Command("search"))
+@dp.message(F.text == "🔎 Поиск замеров")
+async def cmd_search(message: types.Message):
+    args = message.text.replace("/search", "").replace("🔎 Поиск замеров", "").strip()
+    if not args:
+        await message.answer(
+            "Для поиска отправьте текст запроса:\n"
+            "Например: `/search Ленина` или `/search Иванов`",
+            parse_mode="Markdown"
+        )
+        return
+
+    results = await search_orders(args)
+    if not results:
+        await message.answer(f"По запросу «{args}» ничего не найдено.")
+        return
+
+    text = f"🔎 **Результаты поиска по «{args}»:**\n\n"
+    for r in results:
+        text += (
+            f"🔹 **#{r['id']}** — {r['client_name']}\n"
+            f"📍 {r['object_address']}\n"
+            f"📐 {r['construct_type']}\n"
+            f"Подробнее: `/order {r['id']}`\n\n"
+        )
+    await message.answer(text, parse_mode="Markdown")
+
+@dp.message(Command("order"))
+async def cmd_view_order(message: types.Message):
+    parts = message.text.strip().split()
+    if len(parts) < 2:
+        await message.answer("Укажите номер замера. Пример: `/order 582104`", parse_mode="Markdown")
+        return
+
+    order_id = parts[1]
+    order = await get_order_by_id(order_id)
+    if not order:
+        await message.answer(f"Замер с номером #{order_id} не найден.")
+        return
+
+    card = (
+        f"📄 **КАРТОЧКА ЗАМЕРА #{order['id']}**\n"
+        f"📅 Дата: {order['date']}\n"
+        f"────────────────────\n"
+        f"👤 **Заказчик:** {order['client_name']}\n"
+        f"📞 **Телефон:** {order['client_phone']}\n"
+        f"📍 **Адрес:** {order['object_address']}\n"
+        f"🏢 **Этаж/Лифт:** {order['floor_info']}\n"
+        f"────────────────────\n"
+        f"📐 **Конструкция:** {order['construct_type']}\n"
+        f"💎 **Стекло:** {order['glass_thickness']}, {order['glass_color']}\n"
+        f"🔩 **Фурнитура:** {order['hardware_color']} ({order['hardware_type']})\n"
+        f"────────────────────\n"
+        f"📏 **Высоты (В1/В2/В3):** {order['h_left']} / {order['h_center']} / {order['h_right']} мм\n"
+        f"📏 **Ширины (Ш1/Ш2/Ш3):** {order['w_bottom']} / {order['w_middle']} / {order['w_top']} мм\n"
+        f"⚖️ **Завал стен:** Л: {order['tilt_left']} | П: {order['tilt_right']}\n"
+        f"🌊 **Уклон / Порог:** {order['floor_slope']} | Порог: {order['threshold_dims']}\n"
+        f"🧱 **Основание:** {order['wall_material']}\n"
+        f"⚠️️ **Коммуникации:** {order['pipes_warning']}\n"
+        f"📝 **Примечания:** {order['notes']}\n"
+    )
+    await message.answer(card, parse_mode="Markdown")
+
+# Прием данных замера из WebApp формы
+@dp.message(F.web_app_data)
+async def handle_webapp_data(message: types.Message):
+    try:
+        data = json.loads(message.web_app_data.data)
+        await save_order(data, message.from_user.id)
+
+        msg = (
+            f"✅ **Замер #{data['id']} успешно внесен в базу!**\n\n"
+            f"👤 **Клиент:** {data['client_name']}\n"
+            f"📞 **Телефон:** {data['client_phone']}\n"
+            f"📍 **Адрес:** {data['object_address']}\n"
+            f"📐 **Конструкция:** {data['construct_type']}\n"
+            f"💎 **Стекло:** {data['glass_thickness']}, {data['glass_color']}\n"
+            f"🔩 **Фурнитура:** {data['hardware_color']}\n"
+            f"📏 **Размеры:** В: {data['h_left']}/{data['h_center']}/{data['h_right']} мм | "
+            f"Ш: {data['w_bottom']}/{data['w_middle']}/{data['w_top']} мм\n\n"
+            f"Открыть карточку: `/order {data['id']}`"
+        )
+        await message.answer(msg, parse_mode="Markdown")
+    except Exception as e:
+        logger.error(f"Ошибка сохранения: {e}")
+        await message.answer("⚠ Не удалось сохранить данные замера. Попробуйте еще раз.")
+
+# --- ТОЧКА ВХОДА ---
+
+async def main():
+    await init_db()
+    logger.info("Запуск Telegram бота (Версия: 10)...")
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Бот остановлен.")
