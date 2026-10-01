@@ -252,7 +252,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 9</span>
+    <span class="version-tag">Версия: 10</span>
   </div>
 
   <div class="tabs">
@@ -310,7 +310,6 @@
           </div>
         </div>
 
-        <!-- Цвета и матирование без лишних скобок -->
         <div class="grid-2">
           <div class="form-group">
             <label>Цвет стекла</label>
@@ -333,15 +332,22 @@
           </div>
         </div>
 
+        <!-- Выбор цвета фурнитуры -->
         <div class="form-group">
           <label>Цвет фурнитуры</label>
-          <select id="hardware_color">
-            <option value="Хром глянец">Хром глянец</option>
-            <option value="Черный матовый">Черный матовый</option>
-            <option value="Брашированная сталь">Брашированная сталь</option>
-            <option value="Золото матовое">Золото матовое</option>
-            <option value="Золото глянец">Золото глянец</option>
+          <select id="hardware_color" onchange="toggleCustomHardwareColor()">
+            <option value="Хром">Хром</option>
+            <option value="Черный">Черный</option>
+            <option value="Бронза">Бронза</option>
+            <option value="Золото">Золото</option>
+            <option value="Другой">Другой</option>
           </select>
+        </div>
+
+        <!-- Поле ручного ввода цвета (скрыто, пока не выбран "Другой") -->
+        <div class="form-group" id="custom_hw_group" style="display: none;">
+          <label>Укажите свой цвет фурнитуры *</label>
+          <input type="text" id="custom_hw_color" placeholder="например: Белый матовый, Графит, Медь">
         </div>
       </div>
 
@@ -447,7 +453,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 9</div>
+        <div>Версия: 10</div>
       </div>
     </div>
 
@@ -544,7 +550,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v9';
+    const LOCAL_KEY = 'glass_orders_db_v10';
 
     function loadLocal() {
       try {
@@ -574,11 +580,29 @@
       }
     }
 
+    // Переключение видимости поля для ввода цвета
+    function toggleCustomHardwareColor() {
+      const hwSelect = document.getElementById('hardware_color').value;
+      const customGroup = document.getElementById('custom_hw_group');
+      if (hwSelect === 'Другой') {
+        customGroup.style.display = 'block';
+      } else {
+        customGroup.style.display = 'none';
+        document.getElementById('custom_hw_color').value = '';
+      }
+    }
+
     function getFormData() {
       const colorVal = document.getElementById('glass_color').value;
       const matteVal = document.getElementById('glass_matte').value;
-      // Если "Нет", оставляем только цвет, иначе пишем: "Серое, Хим мат"
       const fullGlass = (matteVal === 'Нет') ? colorVal : `${colorVal}, ${matteVal}`;
+
+      // Определение цвета фурнитуры
+      let hwColor = document.getElementById('hardware_color').value;
+      if (hwColor === 'Другой') {
+        const customVal = document.getElementById('custom_hw_color').value.trim();
+        hwColor = customVal ? customVal : 'Другой';
+      }
 
       return {
         id: Date.now().toString().slice(-6),
@@ -590,7 +614,7 @@
         construct_type: document.getElementById('construct_type').value,
         glass_thickness: document.getElementById('glass_thickness').value,
         glass_color: fullGlass,
-        hardware_color: document.getElementById('hardware_color').value,
+        hardware_color: hwColor,
         hardware_type: document.getElementById('hardware_type').value.trim() || 'Стандарт',
         h_left: document.getElementById('h_left').value.trim(),
         h_center: document.getElementById('h_center').value.trim(),
@@ -615,6 +639,10 @@
       }
       if (!data.h_left || !data.h_center || !data.h_right || !data.w_bottom || !data.w_middle || !data.w_top) {
         alert('Заполните все 3 высоты и 3 ширины в мм');
+        return false;
+      }
+      if (document.getElementById('hardware_color').value === 'Другой' && !document.getElementById('custom_hw_color').value.trim()) {
+        alert('Укажите название цвета фурнитуры');
         return false;
       }
       return true;
@@ -699,7 +727,9 @@
             <span style="font-size:12px; color:var(--hint);">${item.date}</span>
           </div>
           <div style="font-size:12px; color:#94a3b8; margin: 2px 0;">📍 ${item.object_address}</div>
-          <div style="font-size:12px; color:#60a5fa; font-weight:600;">${item.construct_type} (${item.glass_thickness}, ${item.glass_color})</div>
+          <div style="font-size:12px; color:#60a5fa; font-weight:600;">
+            ${item.construct_type} (${item.glass_thickness}, ${item.glass_color}) | Фурнитура: ${item.hardware_color}
+          </div>
           <div style="font-size:11px; color:#cbd5e1; margin-top:2px;">
             В: ${item.h_left}/${item.h_center}/${item.h_right} мм | Ш: ${item.w_bottom}/${item.w_middle}/${item.w_top} мм
           </div>
