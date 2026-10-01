@@ -20,6 +20,7 @@
       --input-bg: #0b1329;
       --input-text: #ffffff;
       --accent: #22c55e;
+      --danger: #ef4444;
     }
 
     * {
@@ -98,6 +99,19 @@
       gap: 6px;
     }
 
+    .edit-banner {
+      background: rgba(234, 179, 8, 0.15);
+      border: 1px solid #eab308;
+      color: #fef08a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
     .form-group {
       margin-bottom: 10px;
     }
@@ -126,7 +140,6 @@
       -webkit-appearance: none;
     }
 
-    /* ПОЛНОЕ ОТКЛЮЧЕНИЕ СТРЕЛОЧЕК У ЧИСЛОВЫХ ПОЛЕЙ */
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
       -webkit-appearance: none !important;
@@ -254,9 +267,43 @@
     .order-item {
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 8px;
+      padding: 12px;
+      margin-bottom: 10px;
       background: #1e293b;
+    }
+
+    .order-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-action-pdf {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-action-edit {
+      background: #eab308;
+      color: #000;
+    }
+
+    .btn-action-delete {
+      background: #ef4444;
+      color: #fff;
     }
 
     #pdf-container {
@@ -304,17 +351,24 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 25</span>
+    <span class="version-tag">Версия: 26</span>
   </div>
 
   <div class="tabs">
-    <button type="button" class="tab active" id="tabNew" onclick="switchView('new')">Новый замер</button>
+    <button type="button" class="tab active" id="tabNew" onclick="switchView('new')">Замер</button>
     <button type="button" class="tab" id="tabHistory" onclick="switchView('history')">База замеров</button>
   </div>
 
   <!-- ВКЛАДКА 1: ФОРМА ЗАМЕРА -->
   <div id="viewForm">
+    <!-- Баннер режима редактирования -->
+    <div id="editBanner" class="edit-banner">
+      <span>✏️ Редактирование замера <strong id="editOrderId">#</strong></span>
+      <button type="button" onclick="cancelEditing()" style="background:none; border:none; color:#fef08a; font-weight:bold; cursor:pointer;">Отмена ✕</button>
+    </div>
+
     <form id="formEl" onsubmit="event.preventDefault();">
+      <input type="hidden" id="editing_order_id" value="">
 
       <!-- 1. Клиент и объект -->
       <div class="card">
@@ -422,7 +476,7 @@
         </div>
       </div>
 
-      <!-- 3А. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ (ОТКРЫТ ПО УМОЛЧАНИЮ) -->
+      <!-- 3А. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ -->
       <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
@@ -486,7 +540,7 @@
           </div>
         </div>
 
-        <!-- БЛОК ШИРИНЫ (адаптируется: 2 поля или 1 поле) -->
+        <!-- БЛОК ШИРИНЫ -->
         <div class="measure-box">
           <label style="color:#60a5fa;" id="shelf_width_label">Ширина ниши (мм)</label>
           <div class="grid-2" id="shelf_width_grid">
@@ -501,7 +555,7 @@
           </div>
         </div>
 
-        <!-- БЛОК ГЛУБИНЫ (адаптируется: 2 поля или 1 поле) -->
+        <!-- БЛОК ГЛУБИНЫ -->
         <div class="measure-box" style="margin-top: 10px;">
           <label style="color:#60a5fa;" id="shelf_depth_label">Глубина ниши (мм)</label>
           <div class="grid-2" id="shelf_depth_grid">
@@ -544,7 +598,7 @@
         </div>
       </div>
 
-      <!-- 3Б. БЛОК РАЗМЕРОВ: ДУШЕВАЯ (СКРЫТ ПО УМОЛЧАНИЮ) -->
+      <!-- 3Б. БЛОК РАЗМЕРОВ: ДУШЕВАЯ -->
       <div class="card" id="shower_measure_card" style="display: none;">
         <div class="card-title">🚿 3. Габариты проема душевой (мм)</div>
 
@@ -609,7 +663,7 @@
 
       <div class="footer-panel">
         <button type="button" class="btn-pdf" onclick="generatePdfSheet()">📄 PDF Лист</button>
-        <button type="button" class="btn-submit" onclick="submitToBot()">✅ Внести замер</button>
+        <button type="button" class="btn-submit" id="submitBtn" onclick="submitToBot()">✅ Внести замер</button>
       </div>
 
     </form>
@@ -618,7 +672,7 @@
   <!-- ВКЛАДКА 2: ИСТОРИЯ И ПОИСК -->
   <div id="viewHistory" style="display: none;">
     <div class="card">
-      <div class="card-title">🔍 Поиск по сохраненным замерам</div>
+      <div class="card-title">🔍 Поиск и управление заказами</div>
       <div class="form-group">
         <input type="text" id="searchInput" oninput="doSearch()" placeholder="Поиск по клиенту, адресу или телефону...">
       </div>
@@ -635,7 +689,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 25</div>
+        <div>Версия: 26</div>
       </div>
     </div>
 
@@ -697,7 +751,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v25';
+    const LOCAL_KEY = 'glass_orders_db_v26';
 
     function loadLocal() {
       try {
@@ -707,10 +761,101 @@
       }
     }
 
-    function saveLocal(item) {
+    function saveAllLocal(list) {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
+    }
+
+    function saveOrUpdateLocal(item) {
       const all = loadLocal();
-      all.unshift(item);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
+      const existingIdx = all.findIndex(o => o.id === item.id);
+      if (existingIdx >= 0) {
+        all[existingIdx] = item;
+      } else {
+        all.unshift(item);
+      }
+      saveAllLocal(all);
+    }
+
+    function deleteOrder(orderId) {
+      if (!confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
+        return;
+      }
+      const all = loadLocal();
+      const filtered = all.filter(o => o.id !== orderId);
+      saveAllLocal(filtered);
+      renderList(filtered);
+
+      // Оповещаем бота об удалении
+      if (tg && tg.sendData) {
+        tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
+      }
+    }
+
+    function editOrder(orderId) {
+      const all = loadLocal();
+      const item = all.find(o => o.id === orderId);
+      if (!item) return;
+
+      // Заполняем форму данными
+      document.getElementById('editing_order_id').value = item.id;
+      document.getElementById('editOrderId').innerText = '#' + item.id;
+      document.getElementById('editBanner').style.display = 'flex';
+      document.getElementById('submitBtn').innerText = '💾 Сохранить изменения';
+
+      document.getElementById('client_name').value = item.client_name || '';
+      document.getElementById('client_phone').value = item.client_phone || '';
+      document.getElementById('object_address').value = item.object_address || '';
+      document.getElementById('entrance_info').value = item.entrance_info && item.entrance_info !== '-' ? item.entrance_info : '';
+      document.getElementById('floor_num').value = item.floor_num && item.floor_num !== '-' ? item.floor_num : '';
+      document.getElementById('has_elevator').value = item.has_elevator || 'Есть';
+
+      document.getElementById('construct_type').value = item.construct_type || 'Стеклянные полки';
+      onConstructTypeChange();
+
+      document.getElementById('glass_thickness').value = item.glass_thickness || 'Согласовать';
+      document.getElementById('wall_material').value = item.wall_material || 'Керамогранит';
+      document.getElementById('notes').value = item.notes && item.notes !== '-' ? item.notes : '';
+
+      if (item.construct_type === 'Стеклянные полки') {
+        const nicheType = item.shelf_niche_type || 'Закрытая ниша';
+        let btn = document.getElementById('niche_btn_1');
+        if (nicheType.includes('Слева короче')) btn = document.getElementById('niche_btn_2');
+        else if (nicheType.includes('Справа короче')) btn = document.getElementById('niche_btn_3');
+        else if (nicheType.includes('Угловая')) btn = document.getElementById('niche_btn_4');
+        selectNiche(nicheType, btn);
+
+        document.getElementById('shelf_count').value = item.shelf_count || '3';
+        document.getElementById('shelf_h_total').value = item.shelf_h_total && item.shelf_h_total !== '-' ? item.shelf_h_total : '';
+        document.getElementById('shelf_w_front').value = item.shelf_w_front || '';
+        document.getElementById('shelf_w_back').value = item.shelf_w_back && item.shelf_w_back !== '-' ? item.shelf_w_back : '';
+        document.getElementById('shelf_d_left').value = item.shelf_d_left || '';
+        document.getElementById('shelf_d_right').value = item.shelf_d_right && item.shelf_d_right !== '-' ? item.shelf_d_right : '';
+
+        document.getElementById('shelf_holder_type').value = item.shelf_holder_type || 'Согласовать';
+        document.getElementById('shelf_edge_type').value = item.shelf_edge_type || 'Согласовать';
+        document.getElementById('shelf_corners').value = item.shelf_corners || 'Согласовать';
+      } else {
+        document.getElementById('h_left').value = item.h_left || '';
+        document.getElementById('h_center').value = item.h_center || '';
+        document.getElementById('h_right').value = item.h_right || '';
+        document.getElementById('w_bottom').value = item.w_bottom || '';
+        document.getElementById('w_middle').value = item.w_middle || '';
+        document.getElementById('w_top').value = item.w_top || '';
+        document.getElementById('tilt_left').value = item.tilt_left || '';
+        document.getElementById('tilt_right').value = item.tilt_right || '';
+        document.getElementById('floor_slope').value = item.floor_slope || '';
+        document.getElementById('threshold_dims').value = item.threshold_dims || '';
+      }
+
+      switchView('new');
+    }
+
+    function cancelEditing() {
+      document.getElementById('editing_order_id').value = '';
+      document.getElementById('editBanner').style.display = 'none';
+      document.getElementById('submitBtn').innerText = '✅ Внести замер';
+      document.getElementById('formEl').reset();
+      onConstructTypeChange();
     }
 
     function switchView(tab) {
@@ -734,10 +879,9 @@
       document.getElementById('shelf_measure_card').style.display = isShelf ? 'block' : 'none';
     }
 
-    // Обработчик выбора ниши с адаптацией полей ввода
     function selectNiche(nicheValue, element) {
       document.querySelectorAll('.niche-option').forEach(el => el.classList.remove('active'));
-      element.classList.add('active');
+      if (element) element.classList.add('active');
       document.getElementById('shelf_niche_type').value = nicheValue;
 
       const wLabel = document.getElementById('shelf_width_label');
@@ -753,7 +897,6 @@
       const d2Wrap = document.getElementById('shelf_d2_wrap');
 
       if (nicheValue.includes('Угловая')) {
-        // Угловая: строго 1 поле ширины и 1 поле глубины
         wLabel.innerText = 'Ширина полки (мм)';
         w1Sub.innerText = 'Размер по стене 1 (мм)';
         w1Input.placeholder = 'напр: 300';
@@ -765,9 +908,7 @@
         d1Input.placeholder = 'напр: 300';
         d2Wrap.style.display = 'none';
         dGrid.style.gridTemplateColumns = '1fr';
-
       } else {
-        // Прямоугольные ниши: 2 поля для ширины и 2 для глубины
         w2Wrap.style.display = 'block';
         wGrid.style.gridTemplateColumns = '1fr 1fr';
         d2Wrap.style.display = 'block';
@@ -780,11 +921,11 @@
 
         dLabel.innerText = 'Глубина стен (мм)';
         if (nicheValue.includes('Слева короче')) {
-          d1Sub.innerText = 'Слева (короткая ⚠️)';
+          d1Sub.innerText = 'Слева (короткая ⚠️️)';
           document.getElementById('shelf_d2_sub').innerText = 'Справа (длинная)';
         } else if (nicheValue.includes('Справа короче')) {
           d1Sub.innerText = 'Слева (длинная)';
-          document.getElementById('shelf_d2_sub').innerText = 'Справа (короткая ⚠️️)';
+          document.getElementById('shelf_d2_sub').innerText = 'Справа (короткая ⚠️)';
         } else {
           d1Sub.innerText = 'Глубина слева';
           document.getElementById('shelf_d2_sub').innerText = 'Глубина справа';
@@ -805,6 +946,7 @@
     }
 
     function getFormData() {
+      const editingId = document.getElementById('editing_order_id').value;
       const construct = document.getElementById('construct_type').value;
       const colorVal = document.getElementById('glass_color').value;
       const matteVal = document.getElementById('glass_matte').value;
@@ -835,7 +977,7 @@
       const combinedFloorInfo = floorInfoArr.join(', ');
 
       const base = {
-        id: Date.now().toString().slice(-6),
+        id: editingId || Date.now().toString().slice(-6),
         date: new Date().toLocaleDateString('ru-RU'),
         client_name: document.getElementById('client_name').value.trim(),
         client_phone: document.getElementById('client_phone').value.trim(),
@@ -903,10 +1045,6 @@
           return false;
         }
       }
-      if (document.getElementById('hardware_color').value === 'Другой' && !document.getElementById('custom_hw_color').value.trim()) {
-        alert('Укажите название цвета фурнитуры');
-        return false;
-      }
       return true;
     }
 
@@ -914,13 +1052,16 @@
       const d = getFormData();
       if (!validate(d)) return;
 
-      saveLocal(d);
+      saveOrUpdateLocal(d);
 
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
-        alert('Замер сохранен! Откройте через Telegram для отправки сообщения в чат.');
+        alert(`Замер #${d.id} сохранен!`);
       }
+
+      cancelEditing();
+      switchView('history');
     }
 
     function fillPdf(d) {
@@ -1020,6 +1161,7 @@
       downloadItemPdf(d);
     }
 
+    // Надежное открытие и печать PDF без блокировок Telegram Webview
     function downloadItemPdf(item) {
       fillPdf(item);
       const container = document.getElementById('pdf-container');
@@ -1033,8 +1175,21 @@
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(config).from(container).save().then(() => {
+      html2pdf().set(config).from(container).toPdf().get('pdf').then(function(pdf) {
+        const blob = pdf.output('blob');
+        const blobUrl = URL.createObjectURL(blob);
         container.classList.remove('show');
+
+        // Открываем надежным способом через создание вкладки или прямого окна печати
+        const win = window.open(blobUrl, '_blank');
+        if (!win) {
+          // Если всплывающее окно заблокировано Webview, вызываем системную печать/сохранение
+          window.print();
+        }
+      }).catch(function(err) {
+        container.classList.remove('show');
+        // Запасной универсальный путь для мобильных устройств
+        window.print();
       });
     }
 
@@ -1070,7 +1225,12 @@
             <div style="font-size:11px; color:#cbd5e1; margin-top:2px;">
               ${sizeInfo}
             </div>
-            <button type="button" style="margin-top:6px; padding:6px 10px; font-size:11px; background:#1e40af; color:#fff; border:none; border-radius:4px; cursor:pointer;" onclick='downloadItemPdf(${JSON.stringify(item)})'>Скачать PDF</button>
+            
+            <div class="order-actions">
+              <button type="button" class="btn-action btn-action-pdf" onclick='downloadItemPdf(${JSON.stringify(item)})'>📄 PDF</button>
+              <button type="button" class="btn-action btn-action-edit" onclick="editOrder('${item.id}')">✏️ Изменить</button>
+              <button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑️ Удалить</button>
+            </div>
           </div>
         `;
       }).join('');
