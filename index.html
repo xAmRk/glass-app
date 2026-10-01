@@ -126,6 +126,17 @@
       -webkit-appearance: none;
     }
 
+    /* ПОЛНОЕ ОТКЛЮЧЕНИЕ СТРЕЛОЧЕК У ЧИСЛОВЫХ ПОЛЕЙ */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none !important;
+      margin: 0 !important;
+      display: none !important;
+    }
+    input[type=number] {
+      -moz-appearance: textfield !important;
+    }
+
     input::placeholder, textarea::placeholder {
       color: #64748b !important;
       opacity: 1;
@@ -293,7 +304,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 21</span>
+    <span class="version-tag">Версия: 22</span>
   </div>
 
   <div class="tabs">
@@ -333,7 +344,7 @@
           </div>
           <div class="form-group">
             <label>Этаж</label>
-            <input type="number" id="floor_num" placeholder="напр: 5">
+            <input type="number" id="floor_num" inputmode="numeric" placeholder="напр: 5">
           </div>
           <div class="form-group">
             <label>Лифт</label>
@@ -345,7 +356,7 @@
         </div>
       </div>
 
-      <!-- 2. Изделие и стекло: по умолчанию стоит Согласовать во всех полях кроме Конструкции -->
+      <!-- 2. Изделие и стекло -->
       <div class="card">
         <div class="card-title">📐 2. Тип изделия и стекло</div>
         <div class="grid-2">
@@ -411,7 +422,7 @@
         </div>
       </div>
 
-      <!-- 3А. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ (ОТКРЫТ ПО УМОЛЧАНИЮ) -->
+      <!-- 3А. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ -->
       <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
@@ -467,11 +478,11 @@
         <div class="grid-2">
           <div class="form-group">
             <label>Кол-во полок (шт.) *</label>
-            <input type="number" id="shelf_count" placeholder="напр: 3">
+            <input type="number" id="shelf_count" inputmode="numeric" placeholder="напр: 3">
           </div>
           <div class="form-group">
             <label>Высота ниши (мм)</label>
-            <input type="number" id="shelf_h_total" placeholder="напр: 1200">
+            <input type="number" id="shelf_h_total" inputmode="numeric" placeholder="напр: 1200">
           </div>
         </div>
 
@@ -480,11 +491,11 @@
           <div class="grid-2">
             <div>
               <label style="font-size:11px;" id="shelf_w1_sub">Ш1 (передний край)</label>
-              <input type="number" id="shelf_w_front" placeholder="Передний край">
+              <input type="number" id="shelf_w_front" inputmode="numeric" placeholder="Передний край">
             </div>
             <div>
               <label style="font-size:11px;" id="shelf_w2_sub">Ш2 (задняя стена)</label>
-              <input type="number" id="shelf_w_back" placeholder="Задняя стена">
+              <input type="number" id="shelf_w_back" inputmode="numeric" placeholder="Задняя стена">
             </div>
           </div>
         </div>
@@ -494,11 +505,11 @@
           <div class="grid-2">
             <div>
               <label style="font-size:11px;" id="shelf_d1_sub">Глубина слева</label>
-              <input type="number" id="shelf_d_left" placeholder="Глубина лево">
+              <input type="number" id="shelf_d_left" inputmode="numeric" placeholder="Глубина лево">
             </div>
             <div>
               <label style="font-size:11px;" id="shelf_d2_sub">Глубина справа</label>
-              <input type="number" id="shelf_d_right" placeholder="Глубина право">
+              <input type="number" id="shelf_d_right" inputmode="numeric" placeholder="Глубина право">
             </div>
           </div>
         </div>
@@ -541,18 +552,18 @@
         <div class="measure-box">
           <label style="color:#60a5fa;">Высота (В1 Лево | В2 Центр | В3 Право)</label>
           <div class="grid-3">
-            <input type="number" id="h_left" placeholder="В1 Лево">
-            <input type="number" id="h_center" placeholder="В2 Центр">
-            <input type="number" id="h_right" placeholder="В3 Право">
+            <input type="number" id="h_left" inputmode="numeric" placeholder="В1 Лево">
+            <input type="number" id="h_center" inputmode="numeric" placeholder="В2 Центр">
+            <input type="number" id="h_right" inputmode="numeric" placeholder="В3 Право">
           </div>
         </div>
 
         <div class="measure-box" style="margin-top: 10px;">
           <label style="color:#60a5fa;">Ширина (Ш1 Низ/Пол | Ш2 Середина | Ш3 Верх)</label>
           <div class="grid-3">
-            <input type="number" id="w_bottom" placeholder="Ш1 Низ">
-            <input type="number" id="w_middle" placeholder="Ш2 Середина">
-            <input type="number" id="w_top" placeholder="Ш3 Верх">
+            <input type="number" id="w_bottom" inputmode="numeric" placeholder="Ш1 Низ">
+            <input type="number" id="w_middle" inputmode="numeric" placeholder="Ш2 Середина">
+            <input type="number" id="w_top" inputmode="numeric" placeholder="Ш3 Верх">
           </div>
         </div>
 
@@ -636,7 +647,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 21</div>
+        <div>Версия: 22</div>
       </div>
     </div>
 
@@ -702,7 +713,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v21';
+    const LOCAL_KEY = 'glass_orders_db_v22';
 
     function loadLocal() {
       try {
