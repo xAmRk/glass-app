@@ -304,7 +304,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 24</span>
+    <span class="version-tag">Версия: 25</span>
   </div>
 
   <div class="tabs">
@@ -486,35 +486,36 @@
           </div>
         </div>
 
+        <!-- БЛОК ШИРИНЫ (адаптируется: 2 поля или 1 поле) -->
         <div class="measure-box">
           <label style="color:#60a5fa;" id="shelf_width_label">Ширина ниши (мм)</label>
-          <div class="grid-2">
-            <div>
+          <div class="grid-2" id="shelf_width_grid">
+            <div id="shelf_w1_wrap">
               <label style="font-size:11px;" id="shelf_w1_sub">Ш1 (передний край)</label>
               <input type="number" id="shelf_w_front" inputmode="numeric" placeholder="Передний край">
             </div>
-            <div>
+            <div id="shelf_w2_wrap">
               <label style="font-size:11px;" id="shelf_w2_sub">Ш2 (задняя стена)</label>
               <input type="number" id="shelf_w_back" inputmode="numeric" placeholder="Задняя стена">
             </div>
           </div>
         </div>
 
+        <!-- БЛОК ГЛУБИНЫ (адаптируется: 2 поля или 1 поле) -->
         <div class="measure-box" style="margin-top: 10px;">
           <label style="color:#60a5fa;" id="shelf_depth_label">Глубина ниши (мм)</label>
-          <div class="grid-2">
-            <div>
+          <div class="grid-2" id="shelf_depth_grid">
+            <div id="shelf_d1_wrap">
               <label style="font-size:11px;" id="shelf_d1_sub">Глубина слева</label>
               <input type="number" id="shelf_d_left" inputmode="numeric" placeholder="Глубина лево">
             </div>
-            <div>
+            <div id="shelf_d2_wrap">
               <label style="font-size:11px;" id="shelf_d2_sub">Глубина справа</label>
               <input type="number" id="shelf_d_right" inputmode="numeric" placeholder="Глубина право">
             </div>
           </div>
         </div>
 
-        <!-- Крепеж: Пеликаны / Полкодержатель / Согласовать; Кромка: Полировка / Шлифовка / Согласовать -->
         <div class="grid-3" style="margin-top: 10px;">
           <div class="form-group">
             <label>Крепеж полок</label>
@@ -588,7 +589,7 @@
         </div>
       </div>
 
-      <!-- 4. Стены и примечания (Обновленный блок) -->
+      <!-- 4. Стены и примечания -->
       <div class="card">
         <div class="card-title">🧱 4. Стены и примечания</div>
         <div class="form-group">
@@ -634,7 +635,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 24</div>
+        <div>Версия: 25</div>
       </div>
     </div>
 
@@ -696,7 +697,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v24';
+    const LOCAL_KEY = 'glass_orders_db_v25';
 
     function loadLocal() {
       try {
@@ -733,46 +734,62 @@
       document.getElementById('shelf_measure_card').style.display = isShelf ? 'block' : 'none';
     }
 
+    // Обработчик выбора ниши с адаптацией полей ввода
     function selectNiche(nicheValue, element) {
       document.querySelectorAll('.niche-option').forEach(el => el.classList.remove('active'));
       element.classList.add('active');
       document.getElementById('shelf_niche_type').value = nicheValue;
 
       const wLabel = document.getElementById('shelf_width_label');
+      const wGrid = document.getElementById('shelf_width_grid');
       const w1Sub = document.getElementById('shelf_w1_sub');
-      const w2Sub = document.getElementById('shelf_w2_sub');
+      const w1Input = document.getElementById('shelf_w_front');
+      const w2Wrap = document.getElementById('shelf_w2_wrap');
+
       const dLabel = document.getElementById('shelf_depth_label');
+      const dGrid = document.getElementById('shelf_depth_grid');
       const d1Sub = document.getElementById('shelf_d1_sub');
-      const d2Sub = document.getElementById('shelf_d2_sub');
+      const d1Input = document.getElementById('shelf_d_left');
+      const d2Wrap = document.getElementById('shelf_d2_wrap');
 
       if (nicheValue.includes('Угловая')) {
-        wLabel.innerText = 'Катеты угла стен (мм)';
-        w1Sub.innerText = 'Стена слева';
-        w2Sub.innerText = 'Стена справа';
-        dLabel.innerText = 'Вылет полки (мм)';
-        d1Sub.innerText = 'По диагонали';
-        d2Sub.innerText = 'Радиус / Фаска';
-      } else if (nicheValue.includes('Слева короче')) {
-        wLabel.innerText = 'Ширина ниши (мм)';
-        w1Sub.innerText = 'Ш1 (передний край)';
-        w2Sub.innerText = 'Ш2 (задняя стена)';
-        dLabel.innerText = 'Глубина стен (мм)';
-        d1Sub.innerText = 'Слева (короткая ⚠️)';
-        d2Sub.innerText = 'Справа (длинная)';
-      } else if (nicheValue.includes('Справа короче')) {
-        wLabel.innerText = 'Ширина ниши (мм)';
-        w1Sub.innerText = 'Ш1 (передний край)';
-        w2Sub.innerText = 'Ш2 (задняя стена)';
-        dLabel.innerText = 'Глубина стен (мм)';
-        d1Sub.innerText = 'Слева (длинная)';
-        d2Sub.innerText = 'Справа (короткая ⚠️)';
+        // Угловая: строго 1 поле ширины и 1 поле глубины
+        wLabel.innerText = 'Ширина полки (мм)';
+        w1Sub.innerText = 'Размер по стене 1 (мм)';
+        w1Input.placeholder = 'напр: 300';
+        w2Wrap.style.display = 'none';
+        wGrid.style.gridTemplateColumns = '1fr';
+
+        dLabel.innerText = 'Глубина полки (мм)';
+        d1Sub.innerText = 'Размер по стене 2 (мм)';
+        d1Input.placeholder = 'напр: 300';
+        d2Wrap.style.display = 'none';
+        dGrid.style.gridTemplateColumns = '1fr';
+
       } else {
+        // Прямоугольные ниши: 2 поля для ширины и 2 для глубины
+        w2Wrap.style.display = 'block';
+        wGrid.style.gridTemplateColumns = '1fr 1fr';
+        d2Wrap.style.display = 'block';
+        dGrid.style.gridTemplateColumns = '1fr 1fr';
+
         wLabel.innerText = 'Ширина ниши (мм)';
         w1Sub.innerText = 'Ш1 (передний край)';
-        w2Sub.innerText = 'Ш2 (задняя стена)';
-        dLabel.innerText = 'Глубина ниши (мм)';
-        d1Sub.innerText = 'Глубина слева';
-        d2Sub.innerText = 'Глубина справа';
+        w1Input.placeholder = 'Передний край';
+        document.getElementById('shelf_w2_sub').innerText = 'Ш2 (задняя стена)';
+
+        dLabel.innerText = 'Глубина стен (мм)';
+        if (nicheValue.includes('Слева короче')) {
+          d1Sub.innerText = 'Слева (короткая ⚠️)';
+          document.getElementById('shelf_d2_sub').innerText = 'Справа (длинная)';
+        } else if (nicheValue.includes('Справа короче')) {
+          d1Sub.innerText = 'Слева (длинная)';
+          document.getElementById('shelf_d2_sub').innerText = 'Справа (короткая ⚠️️)';
+        } else {
+          d1Sub.innerText = 'Глубина слева';
+          document.getElementById('shelf_d2_sub').innerText = 'Глубина справа';
+        }
+        d1Input.placeholder = 'Глубина лево';
       }
     }
 
@@ -836,15 +853,19 @@
       };
 
       if (construct === 'Стеклянные полки') {
+        const isCorner = document.getElementById('shelf_niche_type').value.includes('Угловая');
+        const wFront = document.getElementById('shelf_w_front').value.trim() || '0';
+        const dLeft = document.getElementById('shelf_d_left').value.trim() || '0';
+
         return {
           ...base,
           shelf_niche_type: document.getElementById('shelf_niche_type').value,
           shelf_count: document.getElementById('shelf_count').value.trim() || '1',
           shelf_h_total: document.getElementById('shelf_h_total').value.trim() || '-',
-          shelf_w_front: document.getElementById('shelf_w_front').value.trim() || '0',
-          shelf_w_back: document.getElementById('shelf_w_back').value.trim() || '0',
-          shelf_d_left: document.getElementById('shelf_d_left').value.trim() || '0',
-          shelf_d_right: document.getElementById('shelf_d_right').value.trim() || '0',
+          shelf_w_front: wFront,
+          shelf_w_back: isCorner ? '-' : (document.getElementById('shelf_w_back').value.trim() || '0'),
+          shelf_d_left: dLeft,
+          shelf_d_right: isCorner ? '-' : (document.getElementById('shelf_d_right').value.trim() || '0'),
           shelf_holder_type: document.getElementById('shelf_holder_type').value,
           shelf_edge_type: document.getElementById('shelf_edge_type').value,
           shelf_corners: document.getElementById('shelf_corners').value
@@ -920,6 +941,23 @@
       const mContainer = document.getElementById('pdf_measurements_content');
 
       if (d.construct_type === 'Стеклянные полки') {
+        const isCorner = d.shelf_niche_type && d.shelf_niche_type.includes('Угловая');
+        const sizeRows = isCorner ? `
+            <tr>
+              <th>Размеры угловой полки</th>
+              <td>Ширина: <strong>${d.shelf_w_front} мм</strong> | Глубина: <strong>${d.shelf_d_left} мм</strong></td>
+            </tr>
+        ` : `
+            <tr>
+              <th>Ширина (Перед / Зад)</th>
+              <td>Передний край: ${d.shelf_w_front} мм | Задняя стенка: ${d.shelf_w_back} мм</td>
+            </tr>
+            <tr>
+              <th>Глубина стен (Лево / Право)</th>
+              <td>Слева: ${d.shelf_d_left} мм | Справа: ${d.shelf_d_right} мм</td>
+            </tr>
+        `;
+
         mContainer.innerHTML = `
           <table class="pdf-table">
             <tr>
@@ -930,14 +968,7 @@
               <th>Количество полок</th>
               <td>${d.shelf_count} шт. (Высота ниши: ${d.shelf_h_total} мм)</td>
             </tr>
-            <tr>
-              <th>Ширина (Перед / Зад)</th>
-              <td>Передний край: ${d.shelf_w_front} мм | Задняя стенка: ${d.shelf_w_back} мм</td>
-            </tr>
-            <tr>
-              <th>Глубина стен (Лево / Право)</th>
-              <td>Слева: ${d.shelf_d_left} мм | Справа: ${d.shelf_d_right} мм</td>
-            </tr>
+            ${sizeRows}
           </table>
         `;
       } else {
@@ -1018,8 +1049,11 @@
 
       target.innerHTML = list.map(item => {
         const isShelf = (item.construct_type === 'Стеклянные полки');
+        const isCorner = isShelf && item.shelf_niche_type && item.shelf_niche_type.includes('Угловая');
         const sizeInfo = isShelf
-          ? `Схема: ${item.shelf_niche_type || 'Полки'} | Полок: ${item.shelf_count || 1} шт. | Ш: ${item.shelf_w_front} мм x Г: ${item.shelf_d_left} мм`
+          ? (isCorner 
+              ? `Схема: ${item.shelf_niche_type} | Полок: ${item.shelf_count || 1} шт. | ${item.shelf_w_front} x ${item.shelf_d_left} мм`
+              : `Схема: ${item.shelf_niche_type || 'Полки'} | Полок: ${item.shelf_count || 1} шт. | Ш: ${item.shelf_w_front} мм x Г: ${item.shelf_d_left} мм`)
           : `В: ${item.h_left}/${item.h_center}/${item.h_right} мм | Ш: ${item.w_bottom}/${item.w_middle}/${item.w_top} мм`;
 
         return `
