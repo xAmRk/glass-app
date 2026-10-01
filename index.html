@@ -6,18 +6,20 @@
   <title>Замерщик: Стекло и Душевые</title>
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Генератор PDF прямо в браузере -->
+  <!-- Генерация PDF на клиенте -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
-      --bg: var(--tg-theme-bg-color, #f4f6f9);
-      --card-bg: var(--tg-theme-secondary-bg-color, #ffffff);
-      --text: var(--tg-theme-text-color, #1a1a1a);
-      --hint: var(--tg-theme-hint-color, #707579);
-      --primary: var(--tg-theme-button-color, #2481cc);
-      --btn-text: var(--tg-theme-button-text-color, #ffffff);
-      --border: #dcdfe6;
-      --accent: #2e7d32;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --hint: #94a3b8;
+      --primary: #3b82f6;
+      --btn-text: #ffffff;
+      --border: #334155;
+      --input-bg: #0b1329;
+      --input-text: #ffffff;
+      --accent: #22c55e;
     }
 
     * {
@@ -47,8 +49,8 @@
 
     .version-tag {
       font-size: 11px;
-      background: #e2e8f0;
-      color: #334155;
+      background: #334155;
+      color: #93c5fd;
       padding: 3px 8px;
       border-radius: 12px;
       font-weight: 700;
@@ -83,14 +85,14 @@
       border-radius: 10px;
       padding: 14px;
       margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
     .card-title {
       font-size: 14px;
       font-weight: 700;
       margin-bottom: 10px;
-      color: var(--primary);
+      color: #60a5fa;
       display: flex;
       align-items: center;
       gap: 6px;
@@ -112,20 +114,32 @@
       margin-bottom: 4px;
     }
 
+    /* Исправление отображения вводимого текста и полей */
     input, select, textarea {
       width: 100%;
-      padding: 9px 11px;
+      padding: 10px 12px;
       border: 1px solid var(--border);
       border-radius: 7px;
-      background: #fafafa;
-      color: var(--text);
+      background-color: var(--input-bg) !important;
+      color: var(--input-text) !important;
       font-size: 14px;
       outline: none;
+      -webkit-appearance: none;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #64748b !important;
+      opacity: 1;
+    }
+
+    select option {
+      background-color: #0b1329;
+      color: #ffffff;
     }
 
     input:focus, select:focus, textarea:focus {
       border-color: var(--primary);
-      background: #ffffff;
+      box-shadow: 0 0 0 1px var(--primary);
     }
 
     .grid-2 {
@@ -141,7 +155,7 @@
     }
 
     .measure-box {
-      background: rgba(36, 129, 204, 0.05);
+      background: rgba(59, 130, 246, 0.08);
       border: 1px dashed var(--primary);
       padding: 10px;
       border-radius: 8px;
@@ -155,9 +169,10 @@
       right: 0;
       background: var(--card-bg);
       padding: 12px 16px;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
       display: flex;
       gap: 8px;
+      z-index: 100;
     }
 
     .btn-submit {
@@ -189,14 +204,14 @@
       border-radius: 8px;
       padding: 10px;
       margin-bottom: 8px;
-      background: var(--card-bg);
+      background: #1e293b;
     }
 
-    /* Стили бланка PDF */
+    /* Бланк замера для PDF (всегда контрастный черно-белый) */
     #pdf-container {
       display: none;
       background: #ffffff;
-      color: #111;
+      color: #111111;
       padding: 24px;
       font-size: 12px;
     }
@@ -225,10 +240,12 @@
       border: 1px solid #777;
       padding: 5px 8px;
       text-align: left;
+      color: #000;
     }
 
     .pdf-table th {
       background-color: #f1f5f9;
+      color: #000;
     }
   </style>
 </head>
@@ -236,7 +253,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 2</span>
+    <span class="version-tag">Версия: 6</span>
   </div>
 
   <div class="tabs">
@@ -248,9 +265,9 @@
   <div id="viewForm">
     <form id="formEl" onsubmit="event.preventDefault();">
 
-      <!-- Блок 1. Клиент -->
+      <!-- 1. Клиент и адрес -->
       <div class="card">
-        <div class="card-title">👤 1. Заказчик и адрес</div>
+        <div class="card-title">👤 1. Заказчик и объект</div>
         <div class="form-group">
           <label>ФИО Заказчика *</label>
           <input type="text" id="client_name" required placeholder="Иванов Сергей">
@@ -261,7 +278,7 @@
             <input type="tel" id="client_phone" required placeholder="+7 999 123-45-67">
           </div>
           <div class="form-group">
-            <label>Этаж / Груз. лифт</label>
+            <label>Этаж / Лифт</label>
             <input type="text" id="floor_info" placeholder="7 эт., лифт есть">
           </div>
         </div>
@@ -271,7 +288,7 @@
         </div>
       </div>
 
-      <!-- Блок 2. Конструкция -->
+      <!-- 2. Изделие и стекло -->
       <div class="card">
         <div class="card-title">📐 2. Тип изделия и стекло</div>
         <div class="grid-2">
@@ -322,12 +339,12 @@
         </div>
       </div>
 
-      <!-- Блок 3. Размеры в мм -->
+      <!-- 3. Размеры в мм -->
       <div class="card">
         <div class="card-title">📏 3. Замеры проема (мм)</div>
 
         <div class="measure-box">
-          <label style="color:var(--primary);">Высота (В1 Лево | В2 Центр | В3 Право)</label>
+          <label style="color:#60a5fa;">Высота (В1 Лево | В2 Центр | В3 Право)</label>
           <div class="grid-3">
             <input type="number" id="h_left" placeholder="В1 Лево" required>
             <input type="number" id="h_center" placeholder="В2 Центр" required>
@@ -336,7 +353,7 @@
         </div>
 
         <div class="measure-box" style="margin-top: 10px;">
-          <label style="color:var(--primary);">Ширина (Ш1 Низ/Пол | Ш2 Середина | Ш3 Верх)</label>
+          <label style="color:#60a5fa;">Ширина (Ш1 Низ/Пол | Ш2 Середина | Ш3 Верх)</label>
           <div class="grid-3">
             <input type="number" id="w_bottom" placeholder="Ш1 Низ" required>
             <input type="number" id="w_middle" placeholder="Ш2 Середина" required>
@@ -367,7 +384,7 @@
         </div>
       </div>
 
-      <!-- Блок 4. Монтаж -->
+      <!-- 4. Стены и нюансы -->
       <div class="card">
         <div class="card-title">⚠️ 4. Стены и безопасность</div>
         <div class="grid-2">
@@ -415,7 +432,7 @@
     </div>
   </div>
 
-  <!-- СКРЫТЫЙ БЛАНК ДЛЯ ПЕЧАТИ В PDF -->
+  <!-- ШАБЛОН ДЛЯ PDF -->
   <div id="pdf-container">
     <div class="pdf-header">
       <div>
@@ -424,7 +441,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 2</div>
+        <div>Версия: 6</div>
       </div>
     </div>
 
@@ -459,7 +476,7 @@
       </tr>
     </table>
 
-    <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 12px;">Световой проем в чистовой отделке (мм):</h4>
+    <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 12px; color: #000;">Световой проем в чистовой отделке (мм):</h4>
     <table class="pdf-table">
       <thead>
         <tr>
@@ -508,7 +525,7 @@
       </tr>
     </table>
 
-    <div style="margin-top: 35px; display: flex; justify-content: space-between; font-size: 11px;">
+    <div style="margin-top: 35px; display: flex; justify-content: space-between; font-size: 11px; color:#000;">
       <div>Замер произвел: ____________________</div>
       <div>С размерами ознакомлен (Заказчик): ____________________</div>
     </div>
@@ -521,7 +538,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v2';
+    const LOCAL_KEY = 'glass_orders_db_v6';
 
     function loadLocal() {
       try {
@@ -601,7 +618,7 @@
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
-        alert('Замер сохранен в базу! Запустите внутри Telegram для прямой отправки в чат.');
+        alert('Замер сохранен! Откройте через Telegram для отправки сообщения в чат.');
       }
     }
 
@@ -670,12 +687,12 @@
             <span>#${item.id} — ${item.client_name}</span>
             <span style="font-size:12px; color:var(--hint);">${item.date}</span>
           </div>
-          <div style="font-size:12px; color:#475569; margin: 2px 0;">📍 ${item.object_address}</div>
-          <div style="font-size:12px; color:var(--primary); font-weight:600;">${item.construct_type} (${item.glass_thickness})</div>
-          <div style="font-size:11px; color:#64748b; margin-top:2px;">
+          <div style="font-size:12px; color:#94a3b8; margin: 2px 0;">📍 ${item.object_address}</div>
+          <div style="font-size:12px; color:#60a5fa; font-weight:600;">${item.construct_type} (${item.glass_thickness})</div>
+          <div style="font-size:11px; color:#cbd5e1; margin-top:2px;">
             В: ${item.h_left}/${item.h_center}/${item.h_right} мм | Ш: ${item.w_bottom}/${item.w_middle}/${item.w_top} мм
           </div>
-          <button type="button" style="margin-top:6px; padding:5px 9px; font-size:11px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:4px; cursor:pointer;" onclick='downloadItemPdf(${JSON.stringify(item)})'>Скачать PDF</button>
+          <button type="button" style="margin-top:6px; padding:6px 10px; font-size:11px; background:#1e40af; color:#fff; border:none; border-radius:4px; cursor:pointer;" onclick='downloadItemPdf(${JSON.stringify(item)})'>Скачать PDF</button>
         </div>
       `).join('');
     }
