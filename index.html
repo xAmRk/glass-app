@@ -252,7 +252,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 7</span>
+    <span class="version-tag">Версия: 9</span>
   </div>
 
   <div class="tabs">
@@ -310,27 +310,38 @@
           </div>
         </div>
 
+        <!-- Цвета и матирование без лишних скобок -->
         <div class="grid-2">
           <div class="form-group">
             <label>Цвет стекла</label>
             <select id="glass_color">
-              <option value="Осветленное (Optiwhite)">Осветленное (Optiwhite)</option>
-              <option value="Бесцветное (Float)">Бесцветное (Float)</option>
-              <option value="Графит">Графит (Серое)</option>
+              <option value="Бесцветное">Бесцветное</option>
+              <option value="Серое">Серое</option>
               <option value="Бронза">Бронза</option>
-              <option value="Матовое (Сатинат)">Матовое (Сатинат)</option>
+              <option value="Кристалл">Кристалл</option>
+              <option value="Черное">Черное</option>
+              <option value="Рифленое">Рифленое</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Цвет фурнитуры</label>
-            <select id="hardware_color">
-              <option value="Хром глянец">Хром глянец</option>
-              <option value="Черный матовый">Черный матовый</option>
-              <option value="Брашированная сталь">Брашированная сталь</option>
-              <option value="Золото матовое">Золото матовое</option>
-              <option value="Золото глянец">Золото глянец</option>
+            <label>Матирование</label>
+            <select id="glass_matte">
+              <option value="Нет">Нет</option>
+              <option value="Хим мат">Хим мат</option>
+              <option value="Пескоструй">Пескоструй</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label>Цвет фурнитуры</label>
+          <select id="hardware_color">
+            <option value="Хром глянец">Хром глянец</option>
+            <option value="Черный матовый">Черный матовый</option>
+            <option value="Брашированная сталь">Брашированная сталь</option>
+            <option value="Золото матовое">Золото матовое</option>
+            <option value="Золото глянец">Золото глянец</option>
+          </select>
         </div>
       </div>
 
@@ -436,7 +447,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 7</div>
+        <div>Версия: 9</div>
       </div>
     </div>
 
@@ -533,7 +544,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v7';
+    const LOCAL_KEY = 'glass_orders_db_v9';
 
     function loadLocal() {
       try {
@@ -564,6 +575,11 @@
     }
 
     function getFormData() {
+      const colorVal = document.getElementById('glass_color').value;
+      const matteVal = document.getElementById('glass_matte').value;
+      // Если "Нет", оставляем только цвет, иначе пишем: "Серое, Хим мат"
+      const fullGlass = (matteVal === 'Нет') ? colorVal : `${colorVal}, ${matteVal}`;
+
       return {
         id: Date.now().toString().slice(-6),
         date: new Date().toLocaleDateString('ru-RU'),
@@ -573,7 +589,7 @@
         object_address: document.getElementById('object_address').value.trim(),
         construct_type: document.getElementById('construct_type').value,
         glass_thickness: document.getElementById('glass_thickness').value,
-        glass_color: document.getElementById('glass_color').value,
+        glass_color: fullGlass,
         hardware_color: document.getElementById('hardware_color').value,
         hardware_type: document.getElementById('hardware_type').value.trim() || 'Стандарт',
         h_left: document.getElementById('h_left').value.trim(),
@@ -683,7 +699,7 @@
             <span style="font-size:12px; color:var(--hint);">${item.date}</span>
           </div>
           <div style="font-size:12px; color:#94a3b8; margin: 2px 0;">📍 ${item.object_address}</div>
-          <div style="font-size:12px; color:#60a5fa; font-weight:600;">${item.construct_type} (${item.glass_thickness})</div>
+          <div style="font-size:12px; color:#60a5fa; font-weight:600;">${item.construct_type} (${item.glass_thickness}, ${item.glass_color})</div>
           <div style="font-size:11px; color:#cbd5e1; margin-top:2px;">
             В: ${item.h_left}/${item.h_center}/${item.h_right} мм | Ш: ${item.w_bottom}/${item.w_middle}/${item.w_top} мм
           </div>
