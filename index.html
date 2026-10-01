@@ -351,7 +351,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 35</span>
+    <span class="version-tag">Версия: 38</span>
   </div>
 
   <div class="tabs">
@@ -681,7 +681,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 35</div>
+        <div>Версия: 38</div>
       </div>
     </div>
 
@@ -743,8 +743,10 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v35';
+    const LOCAL_KEY = 'glass_orders_db_v38';
+    const CLOUD_KEY = 'orders_list_json';
 
+    // 1. Чтение из локального хранилища браузера
     function loadLocal() {
       try {
         return JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
@@ -757,8 +759,39 @@
       localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
     }
 
-    function saveOrUpdateLocal(item) {
-      const all = loadLocal();
+    // 2. Чтение из Telegram CloudStorage (синхронизируется между ПК и телефоном)
+    async function loadFromCloud() {
+      return new Promise((resolve) => {
+        if (tg && tg.CloudStorage) {
+          tg.CloudStorage.getItem(CLOUD_KEY, (err, val) => {
+            if (!err && val) {
+              try {
+                const parsed = JSON.parse(val);
+                if (Array.isArray(parsed)) {
+                  saveAllLocal(parsed);
+                  return resolve(parsed);
+                }
+              } catch (e) {}
+            }
+            resolve(loadLocal());
+          });
+        } else {
+          resolve(loadLocal());
+        }
+      });
+    }
+
+    // 3. Сохранение в Telegram CloudStorage
+    async function saveToCloud(list) {
+      if (tg && tg.CloudStorage) {
+        try {
+          tg.CloudStorage.setItem(CLOUD_KEY, JSON.stringify(list.slice(0, 30)));
+        } catch (e) {}
+      }
+    }
+
+    async function saveOrUpdateOrder(item) {
+      const all = await loadFromCloud();
       const existingIdx = all.findIndex(o => o.id === item.id);
       if (existingIdx >= 0) {
         all[existingIdx] = item;
@@ -766,6 +799,22 @@
         all.unshift(item);
       }
       saveAllLocal(all);
+      await saveToCloud(all);
+    }
+
+    async function deleteOrder(orderId) {
+      if (!confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
+        return;
+      }
+      const all = await loadFromCloud();
+      const filtered = all.filter(o => o.id !== orderId);
+      saveAllLocal(filtered);
+      await saveToCloud(filtered);
+      renderList(filtered);
+
+      if (tg && tg.sendData) {
+        tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
+      }
     }
 
     function editOrder(orderId) {
@@ -834,7 +883,7 @@
       onConstructTypeChange();
     }
 
-    function switchView(tab) {
+    async function switchView(tab) {
       document.getElementById('tabNew').classList.toggle('active', tab === 'new');
       document.getElementById('tabHistory').classList.toggle('active', tab === 'history');
       document.getElementById('viewForm').style.display = tab === 'new' ? 'block' : 'none';
@@ -844,7 +893,8 @@
       if (footer) footer.style.display = tab === 'new' ? 'flex' : 'none';
 
       if (tab === 'history') {
-        renderList(loadLocal());
+        const cloudOrders = await loadFromCloud();
+        renderList(cloudOrders);
       }
     }
 
@@ -1028,33 +1078,20 @@
       return true;
     }
 
-    function submitToBot() {
+    async function submitToBot() {
       const d = getFormData();
       if (!validate(d)) return;
 
-      saveOrUpdateLocal(d);
+      // 1. Сохраняем в единое облако Telegram (синхронизация ПК <-> Телефон)
+      await saveOrUpdateOrder(d);
 
-      // ГАРАНТИРОВАННАЯ ОТПРАВКА ЧЕРЕЗ СТАНДАРТНЫЙ ИНТЕРФЕЙС ТЕЛЕГРАМ
+      // 2. Отправляем боту в SQLite на VPS
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
-        alert(`✅ Замер #${d.id} сохранен локально!`);
+        alert(`✅ Замер #${d.id} сохранен!`);
         cancelEditing();
         switchView('history');
-      }
-    }
-
-    function deleteOrder(orderId) {
-      if (!confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
-        return;
-      }
-      const all = loadLocal();
-      const filtered = all.filter(o => o.id !== orderId);
-      saveAllLocal(filtered);
-      renderList(filtered);
-
-      if (tg && tg.sendData) {
-        tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
       }
     }
 
@@ -1183,11 +1220,10 @@
       });
     }
 
-    function renderList(customList) {
-      const list = customList || loadLocal();
+    function renderList(list) {
       const target = document.getElementById('historyList');
 
-      if (!list.length) {
+      if (!list || !list.length) {
         target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 25px;">Замеров пока нет</p>';
         return;
       }
@@ -1226,9 +1262,9 @@
       }).join('');
     }
 
-    function doSearch() {
+    async function doSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      const all = loadLocal();
+      const all = await loadFromCloud();
       const filtered = all.filter(o => 
         (o.client_name && o.client_name.toLowerCase().includes(q)) ||
         (o.object_address && o.object_address.toLowerCase().includes(q)) ||
@@ -1237,6 +1273,11 @@
       );
       renderList(filtered);
     }
+
+    // Инициализация при открытии приложения
+    window.addEventListener('DOMContentLoaded', () => {
+      loadFromCloud();
+    });
   </script>
 </body>
 </html>
