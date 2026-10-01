@@ -153,7 +153,6 @@
       gap: 6px;
     }
 
-    /* АДАПТИВНАЯ СЕТКА КАРТОЧЕК НИШ */
     .niche-grid-4 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -294,7 +293,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 17</span>
+    <span class="version-tag">Версия: 18</span>
   </div>
 
   <div class="tabs">
@@ -309,23 +308,40 @@
       <!-- 1. Клиент и объект -->
       <div class="card">
         <div class="card-title">👤 1. Заказчик и объект</div>
-        <div class="form-group">
-          <label>ФИО Заказчика *</label>
-          <input type="text" id="client_name" required placeholder="Иванов Сергей">
-        </div>
+        
         <div class="grid-2">
+          <div class="form-group">
+            <label>ФИО Заказчика *</label>
+            <input type="text" id="client_name" required placeholder="Иванов Сергей">
+          </div>
           <div class="form-group">
             <label>Телефон *</label>
             <input type="tel" id="client_phone" required placeholder="+7 999 123-45-67">
           </div>
-          <div class="form-group">
-            <label>Этаж / Лифт</label>
-            <input type="text" id="floor_info" placeholder="7 эт., лифт есть">
-          </div>
         </div>
+
         <div class="form-group">
           <label>Адрес объекта *</label>
-          <input type="text" id="object_address" required placeholder="г. Москва, ул. Мира, д. 10, кв. 42">
+          <input type="text" id="object_address" required placeholder="г. Санкт-Петербург, Невский пр., д. 20, кв. 15">
+        </div>
+
+        <!-- Подъезд, Этаж, Лифт -->
+        <div class="grid-3">
+          <div class="form-group">
+            <label>Подъезд / Парадная</label>
+            <input type="text" id="entrance_info" placeholder="напр: 2">
+          </div>
+          <div class="form-group">
+            <label>Этаж</label>
+            <input type="number" id="floor_num" placeholder="напр: 5">
+          </div>
+          <div class="form-group">
+            <label>Лифт</label>
+            <select id="has_elevator">
+              <option value="Есть">Есть</option>
+              <option value="Нет">Нет</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -440,7 +456,7 @@
         </div>
       </div>
 
-      <!-- 3Б. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ (КОМПАКТНЫЕ КАРТОЧКИ) -->
+      <!-- 3Б. БЛОК РАЗМЕРОВ: СТЕКЛЯННЫЕ ПОЛКИ -->
       <div class="card" id="shelf_measure_card" style="display: none;">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
@@ -620,7 +636,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 17</div>
+        <div>Версия: 18</div>
       </div>
     </div>
 
@@ -638,7 +654,7 @@
         <td id="pdf_address"></td>
       </tr>
       <tr>
-        <th>Подъем / Этаж</th>
+        <th>Подъем / Лифт</th>
         <td id="pdf_floor"></td>
       </tr>
       <tr>
@@ -686,7 +702,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v17';
+    const LOCAL_KEY = 'glass_orders_db_v18';
 
     function loadLocal() {
       try {
@@ -797,13 +813,27 @@
         hwColor = customVal ? customVal : 'Другой';
       }
 
+      // Сбор подъезда, этажа и лифта
+      const entrance = document.getElementById('entrance_info').value.trim();
+      const floor = document.getElementById('floor_num').value.trim();
+      const elevator = document.getElementById('has_elevator').value;
+      
+      let floorInfoArr = [];
+      if (entrance) floorInfoArr.push(`Подъезд: ${entrance}`);
+      if (floor) floorInfoArr.push(`Этаж: ${floor}`);
+      floorInfoArr.push(`Лифт: ${elevator}`);
+      const combinedFloorInfo = floorInfoArr.join(', ');
+
       const base = {
         id: Date.now().toString().slice(-6),
         date: new Date().toLocaleDateString('ru-RU'),
         client_name: document.getElementById('client_name').value.trim(),
         client_phone: document.getElementById('client_phone').value.trim(),
-        floor_info: document.getElementById('floor_info').value.trim() || 'Не указан',
         object_address: document.getElementById('object_address').value.trim(),
+        entrance_info: entrance || '-',
+        floor_num: floor || '-',
+        has_elevator: elevator,
+        floor_info: combinedFloorInfo,
         construct_type: construct,
         glass_thickness: document.getElementById('glass_thickness').value,
         glass_color: fullGlass,
@@ -1009,6 +1039,7 @@
               <span style="font-size:12px; color:var(--hint);">${item.date}</span>
             </div>
             <div style="font-size:12px; color:#94a3b8; margin: 2px 0;">📍 ${item.object_address}</div>
+            <div style="font-size:11px; color:#64748b; margin-bottom: 2px;">🏢 ${item.floor_info || '-'}</div>
             <div style="font-size:12px; color:#60a5fa; font-weight:600;">
               ${item.construct_type} (${item.glass_thickness}, ${item.glass_color}) | Фурнитура: ${item.hardware_color}
             </div>
