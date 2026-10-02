@@ -169,13 +169,6 @@
       gap: 8px;
     }
 
-    .grid-2-align-end {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      align-items: end;
-    }
-
     .grid-3 {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -342,7 +335,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 54</span>
+    <span class="version-tag">Версия: 55</span>
   </div>
 
   <div class="tabs">
@@ -399,7 +392,7 @@
         </div>
       </div>
 
-      <!-- 2. Изделие и стекло (Единая структура, выбор "Согласовать" по умолчанию) -->
+      <!-- 2. Изделие и стекло -->
       <div class="card">
         <div class="card-title">📐 2. Тип изделия и стекло</div>
         <div class="grid-2">
@@ -615,7 +608,7 @@
         </div>
       </div>
 
-      <!-- 3Б. РАЗМЕРЫ: ДУШЕВЫЕ (ПРИ ВЫБОРЕ ДУШЕВОЙ) -->
+      <!-- 3Б. РАЗМЕРЫ: ДУШЕВЫЕ -->
       <div class="card" id="shower_measure_card" style="display: none;">
         <div class="card-title">🚿 3. Конфигурация душевой (вид сверху)</div>
 
@@ -657,20 +650,31 @@
 
         <input type="hidden" id="shower_type" value="Г-образная (90°)">
 
-        <!-- ВЫСОТА И ВЫРОВНЕННАЯ ШИРИНА БОРТА -->
-        <div class="grid-2-align-end">
+        <!-- ВЫСОТА И ШИРИНА БОРТОВ (РАЗДЕЛЬНО БОРТ 1 И БОРТ 2) -->
+        <div class="form-group">
+          <label>Высота стекла (мм) *</label>
+          <input type="number" id="shower_h" inputmode="numeric" placeholder="напр: 2000" value="2000">
+        </div>
+
+        <div id="row_two_curbs" class="grid-2">
           <div class="form-group">
-            <label style="min-height: 28px; display: flex; align-items: flex-end;">Высота стекла (мм) *</label>
-            <input type="number" id="shower_h" inputmode="numeric" placeholder="напр: 2000" value="2000">
+            <label>Ширина борта 1 (мм)</label>
+            <input type="number" id="shower_curb_w1" inputmode="numeric" placeholder="напр: 70">
           </div>
           <div class="form-group">
-            <label style="min-height: 28px; display: flex; align-items: flex-end;">Ширина борта / полки (мм)</label>
-            <input type="number" id="shower_curb_w" inputmode="numeric" placeholder="напр: 70">
+            <label>Ширина борта 2 (мм)</label>
+            <input type="number" id="shower_curb_w2" inputmode="numeric" placeholder="напр: 70">
           </div>
+        </div>
+
+        <div id="row_one_curb" class="form-group" style="display: none;">
+          <label>Ширина борта (мм)</label>
+          <input type="number" id="shower_curb_single" inputmode="numeric" placeholder="напр: 70 (если есть)">
         </div>
 
         <!-- РАЗМЕРЫ БОРТОВ / ПРОЕМА -->
         <div class="measure-box" id="box_shower_sizes">
+          <!-- 1. Г-ОБРАЗНАЯ -->
           <div id="fields_corner">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Размеры бортов Г-образной (мм)</label>
             <div class="grid-2">
@@ -695,6 +699,7 @@
             </div>
           </div>
 
+          <!-- 2. ПРЯМАЯ В НИШУ -->
           <div id="fields_straight" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина проема от стены до стены (мм)</label>
             <div class="grid-3">
@@ -704,6 +709,7 @@
             </div>
           </div>
 
+          <!-- 3. ТРАПЕЦИЯ 135° -->
           <div id="fields_trap" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Участки бортов трапеции (мм)</label>
             <div class="grid-3">
@@ -795,7 +801,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v54';
+    const LOCAL_KEY = 'glass_orders_db_v55';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -876,16 +882,25 @@
       const fStraight = document.getElementById('fields_straight');
       const fTrap = document.getElementById('fields_trap');
 
+      const rowTwo = document.getElementById('row_two_curbs');
+      const rowOne = document.getElementById('row_one_curb');
+
       fCorner.style.display = 'none';
       fStraight.style.display = 'none';
       fTrap.style.display = 'none';
 
       if (typeName.includes('Г-образная')) {
         fCorner.style.display = 'block';
+        rowTwo.style.display = 'grid';
+        rowOne.style.display = 'none';
       } else if (typeName.includes('Прямая')) {
         fStraight.style.display = 'block';
+        rowTwo.style.display = 'none';
+        rowOne.style.display = 'block';
       } else if (typeName.includes('Трапеция')) {
         fTrap.style.display = 'block';
+        rowTwo.style.display = 'grid';
+        rowOne.style.display = 'none';
       }
     }
 
@@ -977,11 +992,16 @@
         };
       } else {
         const showerType = document.getElementById('shower_type').value;
+        const isStraight = showerType.includes('Прямая');
+        const curbW1 = isStraight ? (document.getElementById('shower_curb_single').value.trim() || '-') : (document.getElementById('shower_curb_w1').value.trim() || '-');
+        const curbW2 = isStraight ? '-' : (document.getElementById('shower_curb_w2').value.trim() || '-');
+
         return {
           ...base,
           shower_type: showerType,
           shower_h: document.getElementById('shower_h').value.trim() || '2000',
-          shower_curb_w: document.getElementById('shower_curb_w').value.trim() || '-',
+          shower_curb_w1: curbW1,
+          shower_curb_w2: curbW2,
           corner_l1: document.getElementById('corner_l1').value.trim() || '-',
           corner_l2: document.getElementById('corner_l2').value.trim() || '-',
           corner_tilt_b1: document.getElementById('corner_tilt_b1').value.trim() || '-',
