@@ -351,7 +351,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 41</span>
+    <span class="version-tag">Версия: 42</span>
   </div>
 
   <div class="tabs">
@@ -664,7 +664,10 @@
   <!-- ВКЛАДКА 2: ИСТОРИЯ И ПОИСК -->
   <div id="viewHistory" style="display: none;">
     <div class="card">
-      <div class="card-title">🔍 Поиск и управление заказами</div>
+      <div class="card-title" style="justify-content: space-between;">
+        <span>🔍 Поиск и управление заказами</span>
+        <button type="button" onclick="loadAndRenderServerOrders()" style="background:#334155; border:none; color:#60a5fa; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:11px;">🔄 Обновить</button>
+      </div>
       <div class="form-group">
         <input type="text" id="searchInput" oninput="doSearch()" placeholder="Поиск по клиенту, адресу или телефону...">
       </div>
@@ -681,7 +684,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 41</div>
+        <div>Версия: 42</div>
       </div>
     </div>
 
@@ -743,7 +746,11 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v41';
+    // Защищенный HTTPS URL вашего сервера через Nginx
+    const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/orders';
+    const LOCAL_KEY = 'glass_orders_db_v42';
+
+    let currentOrders = [];
 
     function loadLocal() {
       try {
@@ -753,40 +760,37 @@
       }
     }
 
-    function saveAllLocal(list) {
+    function saveLocal(list) {
       localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
+      currentOrders = list;
     }
 
-    // Чтение синхронизированной базы сервера прямо из параметров запуска кнопки
-    function syncFromServerHash() {
+    // ПРЯМОЙ ЗАПРОС К БАЗЕ НА СЕРВЕРЕ
+    async function fetchServerOrders() {
       try {
-        const hash = window.location.hash;
-        if (hash && hash.includes('sync=')) {
-          const raw = hash.split('sync=')[1];
-          const decoded = decodeURIComponent(raw);
-          const serverList = JSON.parse(decoded);
-          if (Array.isArray(serverList) && serverList.length > 0) {
-            // Объединяем с локальными данными без дубликатов
-            const local = loadLocal();
-            const map = new Map();
-            serverList.forEach(item => map.set(item.id, item));
-            local.forEach(item => {
-              if (!map.has(item.id)) map.set(item.id, item);
-            });
-            const merged = Array.from(map.values());
-            saveAllLocal(merged);
-            return merged;
+        const res = await fetch(SERVER_API_URL, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            saveLocal(data);
+            return data;
           }
         }
       } catch (e) {
-        console.error("Hash sync error:", e);
+        console.warn("Server API fetch warning, fallback to local:", e);
       }
       return loadLocal();
     }
 
+    async function loadAndRenderServerOrders() {
+      const target = document.getElementById('historyList');
+      target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 20px;">Загрузка базы с сервера...</p>';
+      const orders = await fetchServerOrders();
+      renderList(orders);
+    }
+
     function editOrder(orderId) {
-      const all = loadLocal();
-      const item = all.find(o => o.id === orderId);
+      const item = currentOrders.find(o => o.id === orderId) || loadLocal().find(o => o.id === orderId);
       if (!item) return;
 
       document.getElementById('editing_order_id').value = item.id;
@@ -860,8 +864,7 @@
       if (footer) footer.style.display = tab === 'new' ? 'flex' : 'none';
 
       if (tab === 'history') {
-        const list = syncFromServerHash();
-        renderList(list);
+        loadAndRenderServerOrders();
       }
     }
 
@@ -1049,16 +1052,10 @@
       const d = getFormData();
       if (!validate(d)) return;
 
-      const local = loadLocal();
-      const existingIdx = local.findIndex(o => o.id === d.id);
-      if (existingIdx >= 0) local[existingIdx] = d;
-      else local.unshift(d);
-      saveAllLocal(local);
-
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
-        alert(`✅ Замер #${d.id} сохранен локально!`);
+        alert(`✅ Замер #${d.id} сохранен!`);
         cancelEditing();
         switchView('history');
       }
@@ -1068,11 +1065,6 @@
       if (!confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
         return;
       }
-      const all = loadLocal();
-      const filtered = all.filter(o => o.id !== orderId);
-      saveAllLocal(filtered);
-      renderList(filtered);
-
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
       }
@@ -1254,8 +1246,7 @@
 
     function doSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      const all = loadLocal();
-      const filtered = all.filter(o => 
+      const filtered = currentOrders.filter(o => 
         (o.client_name && o.client_name.toLowerCase().includes(q)) ||
         (o.object_address && o.object_address.toLowerCase().includes(q)) ||
         (o.client_phone && o.client_phone.toLowerCase().includes(q)) ||
@@ -1264,9 +1255,9 @@
       renderList(filtered);
     }
 
-    // Автоматическая загрузка данных при старте
+    // Фоновая загрузка базы при открытии приложения
     window.addEventListener('DOMContentLoaded', () => {
-      syncFromServerHash();
+      fetchServerOrders();
     });
   </script>
 </body>
