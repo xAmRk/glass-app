@@ -327,7 +327,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 48</span>
+    <span class="version-tag">Версия: 49</span>
   </div>
 
   <div class="tabs">
@@ -450,7 +450,7 @@
         </div>
       </div>
 
-      <!-- 3А. РАЗМЕРЫ: ПОЛКИ (4 ТОЧКИ ПО ВЫСОТЕ) -->
+      <!-- 3А. РАЗМЕРЫ: ПОЛКИ (4 ТОЧКИ: ВЕРХ / СЕРЕДИНА / СЕРЕДИНА / НИЗ) -->
       <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
@@ -512,74 +512,74 @@
 
         <!-- 4 УРОВНЯ ШИРИНЫ -->
         <div class="measure-box">
-          <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;" id="shelf_width_title">Ширина ниши по 4 точкам высоты (мм)</label>
+          <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;" id="shelf_width_title">Ширина ниши по 4 точкам (мм)</label>
           
           <div class="point-row">
-            <span class="point-tag">Точка 1 (Низ / Полка 1)</span>
+            <span class="point-tag">Точка 1 (верх)</span>
             <div class="grid-2" id="grid_w_1">
-              <div><label class="lbl-wf" style="font-size:10px;">Ш1 Перед</label><input type="number" id="shelf_w_front" inputmode="numeric" placeholder="Перед 1"></div>
-              <div class="wrap-wb"><label class="lbl-wb" style="font-size:10px;">Ш1 Зад</label><input type="number" id="shelf_w_back" inputmode="numeric" placeholder="Зад 1"></div>
+              <div><label class="lbl-wf" style="font-size:10px;">Ш1 передний край</label><input type="number" id="shelf_w_front" inputmode="numeric" placeholder="Ш1 передний край"></div>
+              <div class="wrap-wb"><label class="lbl-wb" style="font-size:10px;">Ш1 задний край</label><input type="number" id="shelf_w_back" inputmode="numeric" placeholder="Ш1 задний край"></div>
             </div>
           </div>
 
           <div class="point-row">
-            <span class="point-tag">Точка 2 (Средняя-низ)</span>
+            <span class="point-tag">Точка 2 (середина)</span>
             <div class="grid-2" id="grid_w_2">
-              <div><label class="lbl-wf" style="font-size:10px;">Ш2 Перед</label><input type="number" id="shelf_w_front_2" inputmode="numeric" placeholder="Перед 2"></div>
-              <div class="wrap-wb"><label class="lbl-wb" style="font-size:10px;">Ш2 Зад</label><input type="number" id="shelf_w_back_2" inputmode="numeric" placeholder="Зад 2"></div>
+              <div><label class="lbl-wf" style="font-size:10px;">Ш2 передний край</label><input type="number" id="shelf_w_front_2" inputmode="numeric" placeholder="Ш2 передний край"></div>
+              <div class="wrap-wb"><label class="lbl-wb" style="font-size:10px;">Ш2 задний край</label><input type="number" id="shelf_w_back_2" inputmode="numeric" placeholder="Ш2 задний край"></div>
             </div>
           </div>
 
           <div class="point-row">
-            <span class="point-tag">Точка 3 (Средняя-верх)</span>
+            <span class="point-tag">Точка 3 (середина)</span>
             <div class="grid-2" id="grid_w_3">
-              <div><label class="lbl-wf" style="font-size:10px;">Ш3 Перед</label><input type="number" id="shelf_w_front_3" inputmode="numeric" placeholder="Перед 3"></div>
-              <div class="wrap-wb"><label class="lbl-wb" style="font-size:10px;">Ш3 Зад</label><input type="number" id="shelf_w_back_3" inputmode="numeric" placeholder="Зад 3"></div>
+              <div><label class="lbl-wf" style="font-size:10px;">Ш3 передний край</label><input type="number" id="shelf_w_front_3" inputmode="numeric" placeholder="Ш3 передний край"></div>
+              <div class="wrap-wb"><label class="lbl-wb" style="font-size:10px;">Ш3 задний край</label><input type="number" id="shelf_w_back_3" inputmode="numeric" placeholder="Ш3 задний край"></div>
             </div>
           </div>
 
           <div class="point-row">
-            <span class="point-tag">Точка 4 (Верх / Полка 4)</span>
+            <span class="point-tag">Точка 4 (низ)</span>
             <div class="grid-2" id="grid_w_4">
-              <div><label class="lbl-wf" style="font-size:10px;">Ш4 Перед</label><input type="number" id="shelf_w_front_4" inputmode="numeric" placeholder="Перед 4"></div>
-              <div class="wrap-wb"><label class="lbl-wb" style="font-size:10px;">Ш4 Зад</label><input type="number" id="shelf_w_back_4" inputmode="numeric" placeholder="Зад 4"></div>
+              <div><label class="lbl-wf" style="font-size:10px;">Ш4 передний край</label><input type="number" id="shelf_w_front_4" inputmode="numeric" placeholder="Ш4 передний край"></div>
+              <div class="wrap-wb"><label class="lbl-wb" style="font-size:10px;">Ш4 задний край</label><input type="number" id="shelf_w_back_4" inputmode="numeric" placeholder="Ш4 задний край"></div>
             </div>
           </div>
         </div>
 
         <!-- 4 УРОВНЯ ГЛУБИНЫ -->
         <div class="measure-box">
-          <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;" id="shelf_depth_title">Глубина стен по 4 точкам высоты (мм)</label>
+          <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;" id="shelf_depth_title">Глубина стен по 4 точкам (мм)</label>
           
           <div class="point-row">
-            <span class="point-tag">Точка 1 (Низ / Полка 1)</span>
+            <span class="point-tag">Точка 1 (верх)</span>
             <div class="grid-2" id="grid_d_1">
-              <div><label class="lbl-dl" style="font-size:10px;">Глубина слева</label><input type="number" id="shelf_d_left" inputmode="numeric" placeholder="Лево 1"></div>
-              <div class="wrap-dr"><label class="lbl-dr" style="font-size:10px;">Глубина справа</label><input type="number" id="shelf_d_right" inputmode="numeric" placeholder="Право 1"></div>
+              <div><label class="lbl-dl" style="font-size:10px;">Г1 левый край</label><input type="number" id="shelf_d_left" inputmode="numeric" placeholder="Г1 левый край"></div>
+              <div class="wrap-dr"><label class="lbl-dr" style="font-size:10px;">Г1 правый край</label><input type="number" id="shelf_d_right" inputmode="numeric" placeholder="Г1 правый край"></div>
             </div>
           </div>
 
           <div class="point-row">
-            <span class="point-tag">Точка 2 (Средняя-низ)</span>
+            <span class="point-tag">Точка 2 (середина)</span>
             <div class="grid-2" id="grid_d_2">
-              <div><label class="lbl-dl" style="font-size:10px;">Глубина слева</label><input type="number" id="shelf_d_left_2" inputmode="numeric" placeholder="Лево 2"></div>
-              <div class="wrap-dr"><label class="lbl-dr" style="font-size:10px;">Глубина справа</label><input type="number" id="shelf_d_right_2" inputmode="numeric" placeholder="Право 2"></div>
+              <div><label class="lbl-dl" style="font-size:10px;">Г2 левый край</label><input type="number" id="shelf_d_left_2" inputmode="numeric" placeholder="Г2 левый край"></div>
+              <div class="wrap-dr"><label class="lbl-dr" style="font-size:10px;">Г2 правый край</label><input type="number" id="shelf_d_right_2" inputmode="numeric" placeholder="Г2 правый край"></div>
             </div>
           </div>
 
           <div class="point-row">
-            <span class="point-tag">Точка 3 (Средняя-верх)</span>
+            <span class="point-tag">Точка 3 (середина)</span>
             <div class="grid-2" id="grid_d_3">
-              <div><label class="lbl-dl" style="font-size:10px;">Глубина слева</label><input type="number" id="shelf_d_left_3" inputmode="numeric" placeholder="Лево 3"></div>
-              <div class="wrap-dr"><label class="lbl-dr" style="font-size:10px;">Глубина справа</label><input type="number" id="shelf_d_right_3" inputmode="numeric" placeholder="Право 3"></div>
+              <div><label class="lbl-dl" style="font-size:10px;">Г3 левый край</label><input type="number" id="shelf_d_left_3" inputmode="numeric" placeholder="Г3 левый край"></div>
+              <div class="wrap-dr"><label class="lbl-dr" style="font-size:10px;">Г3 правый край</label><input type="number" id="shelf_d_right_3" inputmode="numeric" placeholder="Г3 правый край"></div>
             </div>
           </div>
 
           <div class="point-row">
-            <span class="point-tag">Точка 4 (Верх / Полка 4)</span>
+            <span class="point-tag">Точка 4 (низ)</span>
             <div class="grid-2" id="grid_d_4">
-              <div><label class="lbl-dl" style="font-size:10px;">Глубина слева</label><input type="number" id="shelf_d_left_4" inputmode="numeric" placeholder="Лево 4"></div>
-              <div class="wrap-dr"><label class="lbl-dr" style="font-size:10px;">Глубина справа</label><input type="number" id="shelf_d_right_4" inputmode="numeric" placeholder="Право 4"></div>
+              <div><label class="lbl-dl" style="font-size:10px;">Г4 левый край</label><input type="number" id="shelf_d_left_4" inputmode="numeric" placeholder="Г4 левый край"></div>
+              <div class="wrap-dr"><label class="lbl-dr" style="font-size:10px;">Г4 правый край</label><input type="number" id="shelf_d_right_4" inputmode="numeric" placeholder="Г4 правый край"></div>
             </div>
           </div>
         </div>
@@ -705,7 +705,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v48';
+    const LOCAL_KEY = 'glass_orders_db_v49';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -798,22 +798,25 @@
         document.getElementById('shelf_count').value = item.shelf_count || '3';
         document.getElementById('shelf_h_total').value = item.shelf_h_total && item.shelf_h_total !== '-' ? item.shelf_h_total : '';
 
-        // Заполнение 4 уровней
+        // Т1 (верх)
         document.getElementById('shelf_w_front').value = item.shelf_w_front || '';
         document.getElementById('shelf_w_back').value = item.shelf_w_back && item.shelf_w_back !== '-' ? item.shelf_w_back : '';
         document.getElementById('shelf_d_left').value = item.shelf_d_left || '';
         document.getElementById('shelf_d_right').value = item.shelf_d_right && item.shelf_d_right !== '-' ? item.shelf_d_right : '';
 
+        // Т2 (середина)
         document.getElementById('shelf_w_front_2').value = item.shelf_w_front_2 && item.shelf_w_front_2 !== '-' ? item.shelf_w_front_2 : '';
         document.getElementById('shelf_w_back_2').value = item.shelf_w_back_2 && item.shelf_w_back_2 !== '-' ? item.shelf_w_back_2 : '';
         document.getElementById('shelf_d_left_2').value = item.shelf_d_left_2 && item.shelf_d_left_2 !== '-' ? item.shelf_d_left_2 : '';
         document.getElementById('shelf_d_right_2').value = item.shelf_d_right_2 && item.shelf_d_right_2 !== '-' ? item.shelf_d_right_2 : '';
 
+        // Т3 (середина)
         document.getElementById('shelf_w_front_3').value = item.shelf_w_front_3 && item.shelf_w_front_3 !== '-' ? item.shelf_w_front_3 : '';
         document.getElementById('shelf_w_back_3').value = item.shelf_w_back_3 && item.shelf_w_back_3 !== '-' ? item.shelf_w_back_3 : '';
         document.getElementById('shelf_d_left_3').value = item.shelf_d_left_3 && item.shelf_d_left_3 !== '-' ? item.shelf_d_left_3 : '';
         document.getElementById('shelf_d_right_3').value = item.shelf_d_right_3 && item.shelf_d_right_3 !== '-' ? item.shelf_d_right_3 : '';
 
+        // Т4 (низ)
         document.getElementById('shelf_w_front_4').value = item.shelf_w_front_4 && item.shelf_w_front_4 !== '-' ? item.shelf_w_front_4 : '';
         document.getElementById('shelf_w_back_4').value = item.shelf_w_back_4 && item.shelf_w_back_4 !== '-' ? item.shelf_w_back_4 : '';
         document.getElementById('shelf_d_left_4').value = item.shelf_d_left_4 && item.shelf_d_left_4 !== '-' ? item.shelf_d_left_4 : '';
@@ -875,30 +878,38 @@
       const isCorner = nicheValue.includes('Угловая');
 
       // Переключение подписей ширины
-      document.getElementById('shelf_width_title').innerText = isCorner ? 'Ширина (Стена 1) по 4 точкам (мм)' : 'Ширина ниши по 4 точкам высоты (мм)';
+      document.getElementById('shelf_width_title').innerText = isCorner ? 'Ширина (Стена 1) по 4 точкам (мм)' : 'Ширина ниши по 4 точкам (мм)';
+      const wFrontLabels = isCorner 
+        ? ['Ш1 Стена 1', 'Ш2 Стена 1', 'Ш3 Стена 1', 'Ш4 Стена 1']
+        : ['Ш1 передний край', 'Ш2 передний край', 'Ш3 передний край', 'Ш4 передний край'];
+      const wBackLabels = ['Ш1 задний край', 'Ш2 задний край', 'Ш3 задний край', 'Ш4 задний край'];
+
       document.querySelectorAll('.lbl-wf').forEach((lbl, i) => {
-        lbl.innerText = isCorner ? `Т${i+1} Стена 1` : `Ш${i+1} (передний край)`;
+        lbl.innerText = wFrontLabels[i] || `Ш${i+1} передний край`;
+      });
+      document.querySelectorAll('.lbl-wb').forEach((lbl, i) => {
+        lbl.innerText = wBackLabels[i] || `Ш${i+1} задний край`;
       });
       document.querySelectorAll('.wrap-wb').forEach(wrap => {
         wrap.style.display = isCorner ? 'none' : 'block';
       });
 
       // Переключение подписей глубины
-      document.getElementById('shelf_depth_title').innerText = isCorner ? 'Глубина (Стена 2) по 4 точкам (мм)' : 'Глубина стен по 4 точкам высоты (мм)';
+      document.getElementById('shelf_depth_title').innerText = isCorner ? 'Глубина (Стена 2) по 4 точкам (мм)' : 'Глубина стен по 4 точкам (мм)';
       document.querySelectorAll('.lbl-dl').forEach((lbl, i) => {
         if (isCorner) {
-          lbl.innerText = `Т${i+1} Стена 2`;
+          lbl.innerText = `Г${i+1} Стена 2`;
         } else if (nicheValue.includes('Слева короче')) {
-          lbl.innerText = `Г${i+1} Слева (короткая ⚠️)`;
+          lbl.innerText = `Г${i+1} левый край (короткая ⚠️)`;
         } else {
-          lbl.innerText = `Г${i+1} Глубина слева`;
+          lbl.innerText = `Г${i+1} левый край`;
         }
       });
       document.querySelectorAll('.lbl-dr').forEach((lbl, i) => {
         if (nicheValue.includes('Справа короче')) {
-          lbl.innerText = `Г${i+1} Справа (короткая ⚠️)`;
+          lbl.innerText = `Г${i+1} правый край (короткая ⚠️)`;
         } else {
-          lbl.innerText = `Г${i+1} Глубина справа`;
+          lbl.innerText = `Г${i+1} правый край`;
         }
       });
       document.querySelectorAll('.wrap-dr').forEach(wrap => {
@@ -974,22 +985,22 @@
           shelf_niche_type: document.getElementById('shelf_niche_type').value,
           shelf_count: document.getElementById('shelf_count').value.trim() || '1',
           shelf_h_total: document.getElementById('shelf_h_total').value.trim() || '-',
-          // Т1
+          // Т1 (верх)
           shelf_w_front: document.getElementById('shelf_w_front').value.trim() || '0',
           shelf_w_back: isCorner ? '-' : (document.getElementById('shelf_w_back').value.trim() || '0'),
           shelf_d_left: document.getElementById('shelf_d_left').value.trim() || '0',
           shelf_d_right: isCorner ? '-' : (document.getElementById('shelf_d_right').value.trim() || '0'),
-          // Т2
+          // Т2 (середина)
           shelf_w_front_2: document.getElementById('shelf_w_front_2').value.trim() || '-',
           shelf_w_back_2: isCorner ? '-' : (document.getElementById('shelf_w_back_2').value.trim() || '-'),
           shelf_d_left_2: document.getElementById('shelf_d_left_2').value.trim() || '-',
           shelf_d_right_2: isCorner ? '-' : (document.getElementById('shelf_d_right_2').value.trim() || '-'),
-          // Т3
+          // Т3 (середина)
           shelf_w_front_3: document.getElementById('shelf_w_front_3').value.trim() || '-',
           shelf_w_back_3: isCorner ? '-' : (document.getElementById('shelf_w_back_3').value.trim() || '-'),
           shelf_d_left_3: document.getElementById('shelf_d_left_3').value.trim() || '-',
           shelf_d_right_3: isCorner ? '-' : (document.getElementById('shelf_d_right_3').value.trim() || '-'),
-          // Т4
+          // Т4 (низ)
           shelf_w_front_4: document.getElementById('shelf_w_front_4').value.trim() || '-',
           shelf_w_back_4: isCorner ? '-' : (document.getElementById('shelf_w_back_4').value.trim() || '-'),
           shelf_d_left_4: document.getElementById('shelf_d_left_4').value.trim() || '-',
@@ -1023,7 +1034,7 @@
       }
       if (data.construct_type === 'Стеклянные полки') {
         if (!data.shelf_w_front || !data.shelf_d_left) {
-          alert('Укажите хотя бы базовые ширину и глубину (Точка 1) в мм');
+          alert('Укажите хотя бы базовые ширину и глубину (Точка 1 верх) в мм');
           return false;
         }
       } else {
@@ -1109,7 +1120,7 @@
             
             <div class="order-actions">
               <button type="button" class="btn-action btn-action-pdf" onclick="downloadItemPdfById('${item.id}')">📄 PDF</button>
-              <button type="button" class="btn-action btn-action-edit" onclick="editOrder('${item.id}')">✏️️ Изменить</button>
+              <button type="button" class="btn-action btn-action-edit" onclick="editOrder('${item.id}')">✏️ Изменить</button>
               ${deleteButtonHtml}
             </div>
           </div>
