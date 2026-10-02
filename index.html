@@ -604,4 +604,700 @@
           <div class="point-row">
             <span class="point-tag">Точка 4 (низ)</span>
             <div class="grid-2">
-              <div><label style="font-size:10px;">Г4 левый край</label><input type="number" id="shelf_d_left_4" inputmode="numeric"
+              <div><label style="font-size:10px;">Г4 левый край</label><input type="number" id="shelf_d_left_4" inputmode="numeric" placeholder="Г4 лево"></div>
+              <div><label style="font-size:10px;">Г4 правый край</label><input type="number" id="shelf_d_right_4" inputmode="numeric" placeholder="Г4 право"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top: 10px;">
+          <div class="form-group">
+            <label>Крепеж полок</label>
+            <select id="shelf_holder_type">
+              <option value="Согласовать" selected>Согласовать</option>
+              <option value="Пеликаны">Пеликаны</option>
+              <option value="Полкодержатель">Полкодержатель</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Кромка</label>
+            <select id="shelf_edge_type">
+              <option value="Согласовать" selected>Согласовать</option>
+              <option value="Полировка">Полировка</option>
+              <option value="Шлифовка">Шлифовка</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Углы полок</label>
+            <select id="shelf_corners">
+              <option value="Согласовать" selected>Согласовать</option>
+              <option value="Прямые (90°)">Прямые (90°)</option>
+              <option value="Радиус (скругление)">Радиус</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3Б. РАЗМЕРЫ: ДУШЕВЫЕ -->
+      <div class="card" id="shower_measure_card" style="display: none;">
+        <div class="card-title">🚿 3. Конфигурация душевой (вид сверху)</div>
+
+        <div class="scheme-grid-3">
+          <div class="scheme-option active" id="shower_btn_corner" onclick="selectShowerType('Г-образная (90°)', this)">
+            <svg class="scheme-svg" viewBox="0 0 60 50">
+              <line x1="8" y1="8" x2="8" y2="44" stroke="#94a3b8" stroke-width="3.5" />
+              <line x1="8" y1="8" x2="52" y2="8" stroke="#94a3b8" stroke-width="3.5" />
+              <line x1="8" y1="44" x2="46" y2="44" stroke="#60a5fa" stroke-width="2.5" />
+              <line x1="46" y1="8" x2="46" y2="44" stroke="#60a5fa" stroke-width="2.5" />
+              <rect x="8" y="8" width="38" height="36" fill="rgba(59, 130, 246, 0.15)" />
+            </svg>
+            <span class="scheme-label">Г-образная 90°</span>
+          </div>
+
+          <div class="scheme-option" id="shower_btn_straight" onclick="selectShowerType('Прямая (в нишу)', this)">
+            <svg class="scheme-svg" viewBox="0 0 60 50">
+              <line x1="10" y1="10" x2="50" y2="10" stroke="#94a3b8" stroke-width="3.5" />
+              <line x1="10" y1="10" x2="10" y2="42" stroke="#94a3b8" stroke-width="3.5" />
+              <line x1="50" y1="10" x2="50" y2="42" stroke="#94a3b8" stroke-width="3.5" />
+              <line x1="10" y1="42" x2="50" y2="42" stroke="#60a5fa" stroke-width="3" stroke-dasharray="3,1" />
+              <rect x="10" y="10" width="40" height="32" fill="rgba(59, 130, 246, 0.15)" />
+            </svg>
+            <span class="scheme-label">Прямая (ниша)</span>
+          </div>
+
+          <div class="scheme-option" id="shower_btn_trap" onclick="selectShowerType('Трапеция (135°)', this)">
+            <svg class="scheme-svg" viewBox="0 0 60 50">
+              <line x1="8" y1="8" x2="8" y2="44" stroke="#94a3b8" stroke-width="3.5" />
+              <line x1="8" y1="8" x2="52" y2="8" stroke="#94a3b8" stroke-width="3.5" />
+              <line x1="8" y1="44" x2="24" y2="44" stroke="#60a5fa" stroke-width="2.5" />
+              <line x1="24" y1="44" x2="48" y2="22" stroke="#38bdf8" stroke-width="2.5" />
+              <line x1="48" y1="22" x2="52" y2="8" stroke="#60a5fa" stroke-width="2.5" />
+              <polygon points="8,8 52,8 48,22 24,44 8,44" fill="rgba(59, 130, 246, 0.15)" />
+            </svg>
+            <span class="scheme-label">Трапеция 135°</span>
+          </div>
+        </div>
+
+        <input type="hidden" id="shower_type" value="Г-образная (90°)">
+
+        <div class="form-group">
+          <label>Высота стекла (мм) *</label>
+          <input type="number" id="shower_h" inputmode="numeric" placeholder="напр: 2000" value="2000">
+        </div>
+
+        <!-- ШИРИНА БОРТОВ -->
+        <div id="row_two_curbs" class="grid-2">
+          <div class="form-group">
+            <label>Ширина борта 1 (мм)</label>
+            <input type="number" id="shower_curb_w1" inputmode="numeric" placeholder="напр: 70">
+          </div>
+          <div class="form-group">
+            <label>Ширина борта 2 (мм)</label>
+            <input type="number" id="shower_curb_w2" inputmode="numeric" placeholder="напр: 70">
+          </div>
+        </div>
+
+        <div id="row_one_curb" class="form-group" style="display: none;">
+          <label>Ширина борта (мм)</label>
+          <input type="number" id="shower_curb_single" inputmode="numeric" placeholder="напр: 70 (если есть)">
+        </div>
+
+        <!-- ДЛИНА КРАЕВ БОРТОВ / ПРОЕМА -->
+        <div class="measure-box" id="box_shower_sizes">
+          <!-- 1. Г-ОБРАЗНАЯ -->
+          <div id="fields_corner">
+            <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Длина краёв бортов (мм)</label>
+            
+            <div class="grid-2-align-end">
+              <div class="form-group">
+                <label style="min-height: 28px; display: flex; align-items: flex-end;">Борт 1: край снаружи</label>
+                <input type="number" id="corner_l1_out" inputmode="numeric" placeholder="напр: 900">
+              </div>
+              <div class="form-group">
+                <label style="min-height: 28px; display: flex; align-items: flex-end;">Борт 1: край внутри</label>
+                <input type="number" id="corner_l1_in" inputmode="numeric" placeholder="напр: 830">
+              </div>
+            </div>
+
+            <div class="grid-2-align-end" style="margin-top: 6px;">
+              <div class="form-group">
+                <label style="min-height: 28px; display: flex; align-items: flex-end;">Борт 2: край снаружи</label>
+                <input type="number" id="corner_l2_out" inputmode="numeric" placeholder="напр: 900">
+              </div>
+              <div class="form-group">
+                <label style="min-height: 28px; display: flex; align-items: flex-end;">Борт 2: край внутри</label>
+                <input type="number" id="corner_l2_in" inputmode="numeric" placeholder="напр: 830">
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. ПРЯМАЯ В НИШУ -->
+          <div id="fields_straight" style="display:none;">
+            <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина проема от стены до стены (мм)</label>
+            <div class="grid-3">
+              <div><label style="font-size:10px;">Ш1 (низ / пол)</label><input type="number" id="straight_w_bottom" inputmode="numeric" placeholder="Ш1 низ"></div>
+              <div><label style="font-size:10px;">Ш2 (середина)</label><input type="number" id="straight_w_mid" inputmode="numeric" placeholder="Ш2 центр"></div>
+              <div><label style="font-size:10px;">Ш3 (верх)</label><input type="number" id="straight_w_top" inputmode="numeric" placeholder="Ш3 верх"></div>
+            </div>
+          </div>
+
+          <!-- 3. ТРАПЕЦИЯ 135° -->
+          <div id="fields_trap" style="display:none;">
+            <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Участки бортов трапеции (мм)</label>
+            <div class="grid-3">
+              <div><label style="font-size:10px;">Отрезок 1 (левый)</label><input type="number" id="trap_seg1" inputmode="numeric" placeholder="напр: 450"></div>
+              <div><label style="font-size:10px;">Отрезок 2 (дверь)</label><input type="number" id="trap_seg2" inputmode="numeric" placeholder="напр: 650"></div>
+              <div><label style="font-size:10px;">Отрезок 3 (правый)</label><input type="number" id="trap_seg3" inputmode="numeric" placeholder="напр: 450"></div>
+            </div>
+            <div class="grid-2" style="margin-top:8px;">
+              <div class="form-group">
+                <label>Диагональ между углами (мм)</label>
+                <input type="number" id="trap_diag" inputmode="numeric" placeholder="напр: 1100">
+              </div>
+              <div class="form-group">
+                <label>Углы трапеции</label>
+                <input type="text" id="trap_angles" value="135° (стандарт)">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 10px;">
+          <div class="form-group">
+            <label>Завал левой стены (мм)</label>
+            <input type="text" id="tilt_wall_left" placeholder="0 или +3 наружу">
+          </div>
+          <div class="form-group">
+            <label>Завал правой стены (мм)</label>
+            <input type="text" id="tilt_wall_right" placeholder="0 или -2 внутрь">
+          </div>
+        </div>
+
+        <!-- УКЛОНЫ К СТЕНЕ: Г-ОБРАЗНАЯ И ТРАПЕЦИЯ -->
+        <div id="row_two_slopes" class="grid-2-align-end">
+          <div class="form-group">
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Уклон: Борт 1 (Левый)</label>
+            <input type="text" id="floor_slope_1" placeholder="напр: 3 мм или Без уклона">
+          </div>
+          <div class="form-group">
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Уклон: Борт 2 (Правый)</label>
+            <input type="text" id="floor_slope_2" placeholder="напр: 3 мм или Без уклона">
+          </div>
+        </div>
+
+        <!-- УКЛОН ДЛЯ ПРЯМОЙ -->
+        <div id="row_straight_slope" class="grid-2-align-end" style="display: none;">
+          <div class="form-group">
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Куда уклон</label>
+            <select id="straight_slope_dir">
+              <option value="Без уклона (в уровне)" selected>Без уклона (в уровне)</option>
+              <option value="Уклон к левой стене">К левой стене</option>
+              <option value="Уклон к правой стене">К правой стене</option>
+              <option value="Уклон к центру">К центру</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Перепад (мм)</label>
+            <input type="text" id="straight_slope_val" placeholder="напр: 4 мм (или 0)">
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Стены и примечания -->
+      <div class="card">
+        <div class="card-title">🧱 4. Стены и примечания</div>
+        <div class="form-group">
+          <label>Материал стен</label>
+          <select id="wall_material">
+            <option value="Керамогранит">Керамогранит</option>
+            <option value="Керамическая плитка">Керамическая плитка</option>
+            <option value="Гипрок">Гипрок</option>
+            <option value="Бетон">Бетон</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Примечания</label>
+          <textarea id="notes" rows="3" placeholder="Особые пожелания, вырезы, расположение розеток или крепежа..."></textarea>
+        </div>
+      </div>
+
+      <div class="footer-panel">
+        <button type="button" class="btn-pdf" onclick="generatePdfSheet()">📄 PDF Лист</button>
+        <button type="button" class="btn-submit" id="submitBtn" onclick="submitToBot()">✅ Внести замер</button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- ВКЛАДКА 2: ИСТОРИЯ И ПОИСК -->
+  <div id="viewHistory" style="display: none;">
+    <div class="card">
+      <div class="card-title" style="justify-content: space-between;">
+        <span>🔍 Поиск и управление заказами</span>
+        <button type="button" onclick="loadAndRenderServerOrders()" style="background:#334155; border:none; color:#60a5fa; padding:4px 8px; border-radius:6px; cursor:pointer; font-size:11px;">🔄 Обновить</button>
+      </div>
+      <div class="form-group">
+        <input type="text" id="searchInput" oninput="doSearch()" placeholder="Поиск по клиенту, адресу или телефону...">
+      </div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.expand();
+      tg.ready();
+    }
+
+    const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
+    const LOCAL_KEY = 'glass_orders_db_v66';
+
+    const SUPER_ADMIN_ID = 253051175;
+    let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    if (!currentUserId) {
+      currentUserId = SUPER_ADMIN_ID;
+    }
+
+    let currentOrders = [];
+
+    function showNotification(msg) {
+      if (tg && typeof tg.showAlert === 'function') {
+        tg.showAlert(msg, () => {
+          document.activeElement?.blur();
+        });
+        return;
+      }
+
+      const toast = document.getElementById('toastNotice');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3500);
+    }
+
+    function clearInputErrors() {
+      document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    }
+
+    function markInputError(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('input-error');
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function loadLocal() {
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveLocal(list) {
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
+      currentOrders = list;
+    }
+
+    async function fetchServerOrders() {
+      try {
+        const res = await fetch(`${SERVER_API_URL}?user_id=${currentUserId}`, {
+          method: 'GET',
+          cache: 'no-store'
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            saveLocal(data);
+            return data;
+          }
+        }
+      } catch (e) {
+        console.warn("Fetch error:", e);
+      }
+      return loadLocal();
+    }
+
+    async function loadAndRenderServerOrders() {
+      const target = document.getElementById('historyList');
+      target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 20px;">Загрузка данных...</p>';
+      const orders = await fetchServerOrders();
+      renderList(orders);
+    }
+
+    function downloadItemPdfById(orderId) {
+      const url = `https://hwsverhbot.ru:8443/glass-api/api/orders/${orderId}/pdf`;
+      if (tg && typeof tg.openLink === 'function') {
+        tg.openLink(url);
+      } else {
+        window.open(url, '_blank');
+      }
+    }
+
+    function onConstructTypeChange() {
+      const type = document.getElementById('construct_type').value;
+      const isShelf = (type === 'Стеклянные полки');
+      document.getElementById('shower_measure_card').style.display = isShelf ? 'none' : 'block';
+      document.getElementById('shelf_measure_card').style.display = isShelf ? 'block' : 'none';
+    }
+
+    function selectShelfNiche(nicheValue, element) {
+      document.querySelectorAll('#shelf_measure_card .scheme-option').forEach(el => el.classList.remove('active'));
+      if (element) element.classList.add('active');
+      document.getElementById('shelf_niche_type').value = nicheValue;
+    }
+
+    function selectShowerType(typeName, element) {
+      document.querySelectorAll('#shower_measure_card .scheme-option').forEach(el => el.classList.remove('active'));
+      if (element) element.classList.add('active');
+      document.getElementById('shower_type').value = typeName;
+
+      const fCorner = document.getElementById('fields_corner');
+      const fStraight = document.getElementById('fields_straight');
+      const fTrap = document.getElementById('fields_trap');
+
+      const rowTwoCurbs = document.getElementById('row_two_curbs');
+      const rowOneCurb = document.getElementById('row_one_curb');
+      const rowTwoSlopes = document.getElementById('row_two_slopes');
+      const rowStraightSlope = document.getElementById('row_straight_slope');
+
+      fCorner.style.display = 'none';
+      fStraight.style.display = 'none';
+      fTrap.style.display = 'none';
+
+      if (typeName.includes('Г-образная')) {
+        fCorner.style.display = 'block';
+        rowTwoCurbs.style.display = 'grid';
+        rowOneCurb.style.display = 'none';
+        rowTwoSlopes.style.display = 'grid';
+        rowStraightSlope.style.display = 'none';
+      } else if (typeName.includes('Прямая')) {
+        fStraight.style.display = 'block';
+        rowTwoCurbs.style.display = 'none';
+        rowOneCurb.style.display = 'block';
+        rowTwoSlopes.style.display = 'none';
+        rowStraightSlope.style.display = 'grid';
+      } else if (typeName.includes('Трапеция')) {
+        fTrap.style.display = 'block';
+        rowTwoCurbs.style.display = 'grid';
+        rowOneCurb.style.display = 'none';
+        rowTwoSlopes.style.display = 'grid';
+        rowStraightSlope.style.display = 'none';
+      }
+    }
+
+    function toggleCustomHardwareColor() {
+      const hwSelect = document.getElementById('hardware_color').value;
+      const customGroup = document.getElementById('custom_hw_group');
+      if (hwSelect === 'Другой') {
+        customGroup.style.display = 'block';
+      } else {
+        customGroup.style.display = 'none';
+        document.getElementById('custom_hw_color').value = '';
+      }
+    }
+
+    function getFormData() {
+      const editingId = document.getElementById('editing_order_id').value;
+      const construct = document.getElementById('construct_type').value;
+      const colorVal = document.getElementById('glass_color').value;
+      const matteVal = document.getElementById('glass_matte').value;
+      
+      let fullGlass = colorVal;
+      if (colorVal === 'Согласовать' && matteVal === 'Согласовать') {
+        fullGlass = 'Согласовать';
+      } else if (matteVal === 'Согласовать') {
+        fullGlass = `${colorVal}, Матирование: Согласовать`;
+      } else if (matteVal !== 'Нет') {
+        fullGlass = `${colorVal}, ${matteVal}`;
+      }
+
+      let hwColor = document.getElementById('hardware_color').value;
+      if (hwColor === 'Другой') {
+        const customVal = document.getElementById('custom_hw_color').value.trim();
+        hwColor = customVal ? customVal : 'Другой';
+      }
+
+      const entrance = document.getElementById('entrance_info').value.trim();
+      const floor = document.getElementById('floor_num').value.trim();
+      const elevator = document.getElementById('has_elevator').value;
+      
+      let floorInfoArr = [];
+      if (entrance) floorInfoArr.push(`Парадная: ${entrance}`);
+      if (floor) floorInfoArr.push(`Этаж: ${floor}`);
+      floorInfoArr.push(`Лифт: ${elevator}`);
+      const combinedFloorInfo = floorInfoArr.join(', ');
+
+      const base = {
+        id: editingId || Date.now().toString().slice(-6),
+        date: new Date().toLocaleDateString('ru-RU'),
+        client_name: document.getElementById('client_name').value.trim(),
+        client_phone: document.getElementById('client_phone').value.trim(),
+        object_address: document.getElementById('object_address').value.trim(),
+        entrance_info: entrance || '-',
+        floor_num: floor || '-',
+        has_elevator: elevator,
+        floor_info: combinedFloorInfo,
+        construct_type: construct,
+        glass_thickness: document.getElementById('glass_thickness').value,
+        glass_color: fullGlass,
+        hardware_color: hwColor,
+        wall_material: document.getElementById('wall_material').value,
+        notes: document.getElementById('notes').value.trim() || '-'
+      };
+
+      if (construct === 'Стеклянные полки') {
+        return {
+          ...base,
+          shelf_niche_type: document.getElementById('shelf_niche_type').value,
+          shelf_count: document.getElementById('shelf_count').value.trim() || '1',
+          shelf_h_total: document.getElementById('shelf_h_total').value.trim() || '-',
+          shelf_w_front: document.getElementById('shelf_w_front').value.trim() || '0',
+          shelf_w_back: document.getElementById('shelf_w_back').value.trim() || '0',
+          shelf_d_left: document.getElementById('shelf_d_left').value.trim() || '0',
+          shelf_d_right: document.getElementById('shelf_d_right').value.trim() || '0',
+          shelf_w_front_2: document.getElementById('shelf_w_front_2').value.trim() || '-',
+          shelf_w_back_2: document.getElementById('shelf_w_back_2').value.trim() || '-',
+          shelf_d_left_2: document.getElementById('shelf_d_left_2').value.trim() || '-',
+          shelf_d_right_2: document.getElementById('shelf_d_right_2').value.trim() || '-',
+          shelf_w_front_3: document.getElementById('shelf_w_front_3').value.trim() || '-',
+          shelf_w_back_3: document.getElementById('shelf_w_back_3').value.trim() || '-',
+          shelf_d_left_3: document.getElementById('shelf_d_left_3').value.trim() || '-',
+          shelf_d_right_3: document.getElementById('shelf_d_right_3').value.trim() || '-',
+          shelf_w_front_4: document.getElementById('shelf_w_front_4').value.trim() || '-',
+          shelf_w_back_4: document.getElementById('shelf_w_back_4').value.trim() || '-',
+          shelf_d_left_4: document.getElementById('shelf_d_left_4').value.trim() || '-',
+          shelf_d_right_4: document.getElementById('shelf_d_right_4').value.trim() || '-',
+          shelf_holder_type: document.getElementById('shelf_holder_type').value,
+          shelf_edge_type: document.getElementById('shelf_edge_type').value,
+          shelf_corners: document.getElementById('shelf_corners').value
+        };
+      } else {
+        const showerType = document.getElementById('shower_type').value;
+        const isStraight = showerType.includes('Прямая');
+        
+        const curbW1 = isStraight ? (document.getElementById('shower_curb_single').value.trim() || '-') : (document.getElementById('shower_curb_w1').value.trim() || '-');
+        const curbW2 = isStraight ? '-' : (document.getElementById('shower_curb_w2').value.trim() || '-');
+
+        let slope1 = '-';
+        let slope2 = '-';
+
+        if (isStraight) {
+          const sDir = document.getElementById('straight_slope_dir').value;
+          const sVal = document.getElementById('straight_slope_val').value.trim();
+          slope1 = (sDir === 'Без уклона (в уровне)' || !sVal) ? sDir : `${sDir}: ${sVal}`;
+        } else {
+          slope1 = document.getElementById('floor_slope_1').value.trim() || 'Без уклона';
+          slope2 = document.getElementById('floor_slope_2').value.trim() || 'Без уклона';
+        }
+
+        return {
+          ...base,
+          shower_type: showerType,
+          shower_h: document.getElementById('shower_h').value.trim() || '2000',
+          shower_curb_w1: curbW1,
+          shower_curb_w2: curbW2,
+          corner_l1_out: document.getElementById('corner_l1_out').value.trim() || '-',
+          corner_l1_in: document.getElementById('corner_l1_in').value.trim() || '-',
+          corner_l2_out: document.getElementById('corner_l2_out').value.trim() || '-',
+          corner_l2_in: document.getElementById('corner_l2_in').value.trim() || '-',
+          straight_w_bottom: document.getElementById('straight_w_bottom').value.trim() || '-',
+          straight_w_mid: document.getElementById('straight_w_mid').value.trim() || '-',
+          straight_w_top: document.getElementById('straight_w_top').value.trim() || '-',
+          trap_seg1: document.getElementById('trap_seg1').value.trim() || '-',
+          trap_seg2: document.getElementById('trap_seg2').value.trim() || '-',
+          trap_seg3: document.getElementById('trap_seg3').value.trim() || '-',
+          trap_diag: document.getElementById('trap_diag').value.trim() || '-',
+          trap_angles: document.getElementById('trap_angles').value.trim() || '135°',
+          tilt_wall_left: document.getElementById('tilt_wall_left').value.trim() || '0 (в норме)',
+          tilt_wall_right: document.getElementById('tilt_wall_right').value.trim() || '0 (в норме)',
+          floor_slope_1: slope1,
+          floor_slope_2: slope2
+        };
+      }
+    }
+
+    function validate(data) {
+      clearInputErrors();
+
+      if (!data.client_name) {
+        markInputError('client_name');
+        showNotification('Укажите ФИО заказчика');
+        return false;
+      }
+      if (!data.client_phone) {
+        markInputError('client_phone');
+        showNotification('Укажите номер телефона');
+        return false;
+      }
+      if (!data.object_address) {
+        markInputError('object_address');
+        showNotification('Укажите адрес объекта');
+        return false;
+      }
+
+      if (data.construct_type === 'Стеклянные полки') {
+        if (!data.shelf_w_front || data.shelf_w_front === '0') {
+          markInputError('shelf_w_front');
+          showNotification('Укажите ширину полки (Точка 1)');
+          return false;
+        }
+        if (!data.shelf_d_left || data.shelf_d_left === '0') {
+          markInputError('shelf_d_left');
+          showNotification('Укажите глубину полки (Точка 1)');
+          return false;
+        }
+      } else {
+        if (data.shower_type.includes('Г-образная')) {
+          if (!data.corner_l1_out || data.corner_l1_out === '-') {
+            markInputError('corner_l1_out');
+            showNotification('Укажите длину борта 1 (снаружи)');
+            return false;
+          }
+        } else if (data.shower_type.includes('Прямая')) {
+          if (!data.straight_w_bottom || data.straight_w_bottom === '-') {
+            markInputError('straight_w_bottom');
+            showNotification('Укажите ширину проема ниши');
+            return false;
+          }
+        } else if (data.shower_type.includes('Трапеция')) {
+          if (!data.trap_seg2 || data.trap_seg2 === '-') {
+            markInputError('trap_seg2');
+            showNotification('Укажите участок двери трапеции');
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function submitToBot() {
+      const d = getFormData();
+      if (!validate(d)) return;
+
+      if (tg && tg.sendData) {
+        tg.sendData(JSON.stringify(d));
+      } else {
+        showNotification(`✅ Замер #${d.id} отправлен!`);
+        cancelEditing();
+        switchView('history');
+      }
+    }
+
+    async function generatePdfSheet() {
+      const d = getFormData();
+      if (!validate(d)) return;
+      
+      try {
+        await fetch(SERVER_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(d)
+        });
+      } catch (e) {}
+
+      downloadItemPdfById(d.id);
+    }
+
+    function deleteOrder(orderId) {
+      if (confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
+        if (tg && tg.sendData) {
+          tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
+        }
+      }
+    }
+
+    function renderList(list) {
+      const target = document.getElementById('historyList');
+
+      if (!list || !list.length) {
+        target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 25px;">Замеров пока нет</p>';
+        return;
+      }
+
+      const isAdmin = (currentUserId === SUPER_ADMIN_ID);
+
+      target.innerHTML = list.map(item => {
+        const isShelf = (item.construct_type === 'Стеклянные полки');
+        let sizeInfo = '';
+        if (isShelf) {
+          sizeInfo = `Полки: ${item.shelf_niche_type || 'Ниша'} | ${item.shelf_count || 1} шт. | ${item.shelf_w_front} x ${item.shelf_d_left} мм`;
+        } else {
+          const st = item.shower_type || 'Душевая';
+          if (st.includes('Г-образная')) {
+            const b1 = item.corner_l1_out || item.corner_l1 || '-';
+            const b2 = item.corner_l2_out || item.corner_l2 || '-';
+            sizeInfo = `${st} | Борта: ${b1} x ${b2} мм | H: ${item.shower_h || 2000} мм`;
+          } else if (st.includes('Прямая')) {
+            sizeInfo = `${st} | Проем: ${item.straight_w_bottom || '-'} мм | H: ${item.shower_h || 2000} мм`;
+          } else if (st.includes('Трапеция')) {
+            sizeInfo = `${st} | Борта: ${item.trap_seg1} / ${item.trap_seg2} / ${item.trap_seg3} мм | H: ${item.shower_h || 2000} мм`;
+          } else {
+            sizeInfo = `${st} | H: ${item.shower_h || 2000} мм`;
+          }
+        }
+
+        const deleteButtonHtml = isAdmin 
+          ? `<button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑 Удалить</button>` 
+          : '';
+
+        return `
+          <div class="order-item">
+            <div style="display:flex; justify-content:space-between; font-weight:700;">
+              <span>#${item.id} — ${item.client_name}</span>
+              <span style="font-size:12px; color:var(--hint);">${item.date}</span>
+            </div>
+            <div style="font-size:12px; color:#94a3b8; margin: 2px 0;">📍 ${item.object_address}</div>
+            <div style="font-size:11px; color:#64748b; margin-bottom: 2px;">🏢 ${item.floor_info || '-'}</div>
+            <div style="font-size:12px; color:#60a5fa; font-weight:600;">
+              ${item.construct_type} (${item.glass_thickness}, ${item.glass_color}) | ${item.hardware_color}
+            </div>
+            <div style="font-size:11px; color:#cbd5e1; margin-top:2px;">
+              ${sizeInfo}
+            </div>
+            
+            <div class="order-actions">
+              <button type="button" class="btn-action btn-action-pdf" onclick="downloadItemPdfById('${item.id}')">📄 PDF</button>
+              ${deleteButtonHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function doSearch() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = currentOrders.filter(o => 
+        (o.client_name && o.client_name.toLowerCase().includes(q)) ||
+        (o.object_address && o.object_address.toLowerCase().includes(q)) ||
+        (o.client_phone && o.client_phone.toLowerCase().includes(q)) ||
+        (o.id && o.id.includes(q))
+      );
+      renderList(filtered);
+    }
+
+    function switchView(tab) {
+      document.getElementById('tabNew').classList.toggle('active', tab === 'new');
+      document.getElementById('tabHistory').classList.toggle('active', tab === 'history');
+      document.getElementById('viewForm').style.display = tab === 'new' ? 'block' : 'none';
+      document.getElementById('viewHistory').style.display = tab === 'history' ? 'block' : 'none';
+
+      const footer = document.querySelector('.footer-panel');
+      if (footer) footer.style.display = tab === 'new' ? 'flex' : 'none';
+
+      if (tab === 'history') {
+        loadAndRenderServerOrders();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      onConstructTypeChange();
+      fetchServerOrders();
+    });
+  </script>
+</body>
+</html>
