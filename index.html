@@ -136,6 +136,12 @@
       font-size: 14px;
       outline: none;
       -webkit-appearance: none;
+      transition: border-color 0.2s ease;
+    }
+
+    input.input-error {
+      border-color: var(--danger) !important;
+      background-color: rgba(239, 68, 68, 0.1) !important;
     }
 
     input[type=number]::-webkit-inner-spin-button,
@@ -320,22 +326,38 @@
       color: #fff;
     }
 
-    .btn-action-edit {
-      background: #eab308;
-      color: #000;
-    }
-
     .btn-action-delete {
       background: #ef4444;
       color: #fff;
+    }
+
+    /* Мягкое уведомление без залипания фокуса */
+    #toastNotice {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ef4444;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      z-index: 1000;
+      display: none;
+      text-align: center;
+      max-width: 90%;
     }
   </style>
 </head>
 <body>
 
+  <div id="toastNotice"></div>
+
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 59</span>
+    <span class="version-tag">Версия: 60</span>
   </div>
 
   <div class="tabs">
@@ -458,7 +480,7 @@
         </div>
       </div>
 
-      <!-- 3А. РАЗМЕРЫ: ПОЛКИ (ПО УМОЛЧАНИЮ) -->
+      <!-- 3А. РАЗМЕРЫ: ПОЛКИ -->
       <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
@@ -672,9 +694,8 @@
           <input type="number" id="shower_curb_single" inputmode="numeric" placeholder="напр: 70 (если есть)">
         </div>
 
-        <!-- РАЗМЕРЫ БОРТОВ / ПРОЕМА -->
+        <!-- ДЛИНА КРАЕВ БОРТОВ -->
         <div class="measure-box" id="box_shower_sizes">
-          <!-- 1. Г-ОБРАЗНАЯ (ЧЕТКИЙ ЗАГОЛОВОК: ДЛИНА КРАЕВ БОРТОВ) -->
           <div id="fields_corner">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Длина краёв бортов (мм)</label>
             
@@ -701,7 +722,6 @@
             </div>
           </div>
 
-          <!-- 2. ПРЯМАЯ В НИШУ -->
           <div id="fields_straight" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина проема от стены до стены (мм)</label>
             <div class="grid-3">
@@ -711,7 +731,6 @@
             </div>
           </div>
 
-          <!-- 3. ТРАПЕЦИЯ 135° -->
           <div id="fields_trap" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Участки бортов трапеции (мм)</label>
             <div class="grid-3">
@@ -809,7 +828,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v59';
+    const LOCAL_KEY = 'glass_orders_db_v60';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -818,6 +837,36 @@
     }
 
     let currentOrders = [];
+
+    // Мягкое уведомление без блокировки фокуса
+    function showNotification(msg) {
+      if (tg && typeof tg.showAlert === 'function') {
+        tg.showAlert(msg, () => {
+          // Гарантированно возвращаем кликабельность
+          document.activeElement?.blur();
+        });
+        return;
+      }
+
+      const toast = document.getElementById('toastNotice');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3500);
+    }
+
+    function clearInputErrors() {
+      document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    }
+
+    function markInputError(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('input-error');
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
 
     function loadLocal() {
       try {
@@ -1043,29 +1092,52 @@
     }
 
     function validate(data) {
-      if (!data.client_name || !data.client_phone || !data.object_address) {
-        alert('Заполните: Имя, Телефон и Адрес');
+      clearInputErrors();
+
+      if (!data.client_name) {
+        markInputError('client_name');
+        showNotification('Укажите ФИО заказчика');
         return false;
       }
+      if (!data.client_phone) {
+        markInputError('client_phone');
+        showNotification('Укажите номер телефона');
+        return false;
+      }
+      if (!data.object_address) {
+        markInputError('object_address');
+        showNotification('Укажите адрес объекта');
+        return false;
+      }
+
       if (data.construct_type === 'Стеклянные полки') {
-        if (!data.shelf_w_front || !data.shelf_d_left) {
-          alert('Укажите базовые размеры полки (Точка 1) в мм');
+        if (!data.shelf_w_front || data.shelf_w_front === '0') {
+          markInputError('shelf_w_front');
+          showNotification('Укажите ширину полки (Точка 1)');
+          return false;
+        }
+        if (!data.shelf_d_left || data.shelf_d_left === '0') {
+          markInputError('shelf_d_left');
+          showNotification('Укажите глубину полки (Точка 1)');
           return false;
         }
       } else {
         if (data.shower_type.includes('Г-образная')) {
           if (!data.corner_l1_out || data.corner_l1_out === '-') {
-            alert('Укажите длину краёв бортов (снаружи / внутри в мм)');
+            markInputError('corner_l1_out');
+            showNotification('Укажите длину борта 1 (снаружи)');
             return false;
           }
         } else if (data.shower_type.includes('Прямая')) {
           if (!data.straight_w_bottom || data.straight_w_bottom === '-') {
-            alert('Укажите ширину проема ниши (мм)');
+            markInputError('straight_w_bottom');
+            showNotification('Укажите ширину проема ниши');
             return false;
           }
         } else if (data.shower_type.includes('Трапеция')) {
           if (!data.trap_seg2 || data.trap_seg2 === '-') {
-            alert('Укажите участки трапеции (мм)');
+            markInputError('trap_seg2');
+            showNotification('Укажите участок двери трапеции');
             return false;
           }
         }
@@ -1080,7 +1152,7 @@
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
-        alert(`✅ Замер #${d.id} отправлен!`);
+        showNotification(`✅ Замер #${d.id} отправлен!`);
         cancelEditing();
         switchView('history');
       }
@@ -1102,11 +1174,10 @@
     }
 
     function deleteOrder(orderId) {
-      if (!confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
-        return;
-      }
-      if (tg && tg.sendData) {
-        tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
+      if (confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
+        if (tg && tg.sendData) {
+          tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
+        }
       }
     }
 
