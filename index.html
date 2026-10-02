@@ -4,10 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Замерщик: Стекло и Душевые</title>
-  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Генерация PDF на клиенте -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --bg: #0f172a;
@@ -305,53 +302,13 @@
       background: #ef4444;
       color: #fff;
     }
-
-    #pdf-container {
-      position: absolute;
-      left: -9999px;
-      top: 0;
-      width: 800px;
-      background: #ffffff;
-      color: #111111;
-      padding: 24px;
-      font-size: 13px;
-    }
-
-    .pdf-header {
-      border-bottom: 2px solid #222;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .pdf-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 6px;
-      margin-bottom: 12px;
-    }
-
-    .pdf-table th, .pdf-table td {
-      border: 1px solid #777;
-      padding: 6px 8px;
-      text-align: left;
-      color: #000;
-      font-size: 12px;
-    }
-
-    .pdf-table th {
-      background-color: #f1f5f9;
-      color: #000;
-    }
   </style>
 </head>
 <body>
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 44</span>
+    <span class="version-tag">Версия: 45</span>
   </div>
 
   <div class="tabs">
@@ -675,70 +632,6 @@
     </div>
   </div>
 
-  <!-- ШАБЛОН PDF -->
-  <div id="pdf-container">
-    <div class="pdf-header">
-      <div>
-        <h2 style="font-size: 17px; margin-bottom: 3px;">ТЕХНИЧЕСКИЙ ЛИСТ ЗАМЕРА №<span id="pdf_id"></span></h2>
-        <div style="font-size: 11px; color:#555;">Изготовление и монтаж стеклянных конструкций</div>
-      </div>
-      <div style="text-align: right; font-size: 11px;">
-        <div id="pdf_date"></div>
-        <div>Версия: 44</div>
-      </div>
-    </div>
-
-    <table class="pdf-table">
-      <tr>
-        <th style="width: 25%;">Клиент</th>
-        <td id="pdf_client" style="width: 75%;"></td>
-      </tr>
-      <tr>
-        <th>Телефон</th>
-        <td id="pdf_phone"></td>
-      </tr>
-      <tr>
-        <th>Адрес объекта</th>
-        <td id="pdf_address"></td>
-      </tr>
-      <tr>
-        <th>Подъем / Лифт</th>
-        <td id="pdf_floor"></td>
-      </tr>
-      <tr>
-        <th>Тип изделия</th>
-        <td id="pdf_type" style="font-weight: bold;"></td>
-      </tr>
-      <tr>
-        <th>Характеристики стекла</th>
-        <td id="pdf_glass"></td>
-      </tr>
-      <tr>
-        <th>Фурнитура / Крепеж</th>
-        <td id="pdf_hardware"></td>
-      </tr>
-    </table>
-
-    <h4 style="margin-top: 10px; margin-bottom: 4px; font-size: 12px; color: #000;">Геометрия и замеры (мм):</h4>
-    <div id="pdf_measurements_content"></div>
-
-    <table class="pdf-table" style="margin-top: 8px;">
-      <tr>
-        <th style="width: 30%;">Материал стен</th>
-        <td id="pdf_wall"></td>
-      </tr>
-      <tr>
-        <th>Примечания</th>
-        <td id="pdf_notes"></td>
-      </tr>
-    </table>
-
-    <div style="margin-top: 35px; display: flex; justify-content: space-between; font-size: 11px; color:#000;">
-      <div>Замер произвел: ____________________</div>
-      <div>С размерами ознакомлен (Заказчик): ____________________</div>
-    </div>
-  </div>
-
   <script>
     const tg = window.Telegram?.WebApp;
     if (tg) {
@@ -747,7 +640,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v44';
+    const LOCAL_KEY = 'glass_orders_db_v45';
 
     let currentOrders = [];
 
@@ -764,43 +657,41 @@
       currentOrders = list;
     }
 
-    // Запрос базы данных с подробным выводом ошибок
     async function fetchServerOrders() {
-      const target = document.getElementById('historyList');
       try {
         const res = await fetch(SERVER_API_URL, {
           method: 'GET',
           cache: 'no-store'
         });
         
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-        }
-
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          saveLocal(data);
-          return data;
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            saveLocal(data);
+            return data;
+          }
         }
       } catch (e) {
-        console.error("Fetch error:", e);
-        if (target) {
-          target.innerHTML = `
-            <div style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#fca5a5; padding:12px; border-radius:8px; font-size:12px; margin-bottom:10px;">
-              ⚠️ <strong>Ошибка подключения к базе:</strong><br>${e.message}<br>
-              <small>Показываем ранее сохраненные данные.</small>
-            </div>
-          `;
-        }
+        console.warn("Fetch error:", e);
       }
       return loadLocal();
     }
 
     async function loadAndRenderServerOrders() {
       const target = document.getElementById('historyList');
-      target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 20px;">Загрузка данных с сервера...</p>';
+      target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 20px;">Загрузка базы...</p>';
       const orders = await fetchServerOrders();
       renderList(orders);
+    }
+
+    // Скачивание PDF напрямую с сервера
+    function downloadItemPdfById(orderId) {
+      const url = `https://hwsverhbot.ru:8443/glass-api/api/orders/${orderId}/pdf`;
+      if (tg && typeof tg.openLink === 'function') {
+        tg.openLink(url);
+      } else {
+        window.open(url, '_blank');
+      }
     }
 
     function editOrder(orderId) {
@@ -1069,10 +960,26 @@
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
-        alert(`✅ Замер #${d.id} сохранен!`);
+        alert(`✅ Замер #${d.id} отправлен!`);
         cancelEditing();
         switchView('history');
       }
+    }
+
+    // Сохранение и выгрузка серверного PDF
+    async function generatePdfSheet() {
+      const d = getFormData();
+      if (!validate(d)) return;
+      
+      try {
+        await fetch(SERVER_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(d)
+        });
+      } catch (e) {}
+
+      downloadItemPdfById(d.id);
     }
 
     function deleteOrder(orderId) {
@@ -1082,138 +989,6 @@
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
       }
-    }
-
-    function fillPdf(d) {
-      document.getElementById('pdf_id').innerText = d.id;
-      document.getElementById('pdf_date').innerText = d.date;
-      document.getElementById('pdf_client').innerText = d.client_name;
-      document.getElementById('pdf_phone').innerText = d.client_phone;
-      document.getElementById('pdf_address').innerText = d.object_address;
-      document.getElementById('pdf_floor').innerText = d.floor_info;
-      document.getElementById('pdf_type').innerText = d.construct_type;
-      document.getElementById('pdf_glass').innerText = `Толщина: ${d.glass_thickness}, Цвет: ${d.glass_color}`;
-      
-      const hwInfo = (d.construct_type === 'Стеклянные полки')
-        ? `Цвет: ${d.hardware_color} | Крепеж: ${d.shelf_holder_type} | Кромка: ${d.shelf_edge_type} | Углы: ${d.shelf_corners}`
-        : `Цвет: ${d.hardware_color}`;
-      document.getElementById('pdf_hardware').innerText = hwInfo;
-
-      const mContainer = document.getElementById('pdf_measurements_content');
-
-      if (d.construct_type === 'Стеклянные полки') {
-        const isCorner = d.shelf_niche_type && d.shelf_niche_type.includes('Угловая');
-        const sizeRows = isCorner ? `
-            <tr>
-              <th>Размеры угловой полки</th>
-              <td>Ширина: <strong>${d.shelf_w_front} мм</strong> | Глубина: <strong>${d.shelf_d_left} мм</strong></td>
-            </tr>
-        ` : `
-            <tr>
-              <th>Ширина (Перед / Зад)</th>
-              <td>Передний край: ${d.shelf_w_front} мм | Задняя стенка: ${d.shelf_w_back} мм</td>
-            </tr>
-            <tr>
-              <th>Глубина стен (Лево / Право)</th>
-              <td>Слева: ${d.shelf_d_left} мм | Справа: ${d.shelf_d_right} мм</td>
-            </tr>
-        `;
-
-        mContainer.innerHTML = `
-          <table class="pdf-table">
-            <tr>
-              <th style="width: 35%;">Схема ниши</th>
-              <td><strong>${d.shelf_niche_type}</strong></td>
-            </tr>
-            <tr>
-              <th>Количество полок</th>
-              <td>${d.shelf_count} шт. (Высота ниши: ${d.shelf_h_total} мм)</td>
-            </tr>
-            ${sizeRows}
-          </table>
-        `;
-      } else {
-        mContainer.innerHTML = `
-          <table class="pdf-table">
-            <thead>
-              <tr>
-                <th>Параметр</th>
-                <th>Точка 1 (Лево / Низ)</th>
-                <th>Точка 2 (Центр / Средняя)</th>
-                <th>Точка 3 (Право / Верх)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Высота (H)</strong></td>
-                <td>${d.h_left} мм</td>
-                <td>${d.h_center} мм</td>
-                <td>${d.h_right} мм</td>
-              </tr>
-              <tr>
-                <td><strong>Ширина (W)</strong></td>
-                <td>${d.w_bottom} мм</td>
-                <td>${d.w_middle} мм</td>
-                <td>${d.w_top} мм</td>
-              </tr>
-            </tbody>
-          </table>
-          <table class="pdf-table">
-            <tr>
-              <th style="width: 30%;">Отклонения стен</th>
-              <td>Л: ${d.tilt_left} | П: ${d.tilt_right}</td>
-            </tr>
-            <tr>
-              <th>Уклон пола / Порог</th>
-              <td>${d.floor_slope} (Порог: ${d.threshold_dims})</td>
-            </tr>
-          </table>
-        `;
-      }
-
-      document.getElementById('pdf_wall').innerText = d.wall_material;
-      document.getElementById('pdf_notes').innerText = d.notes;
-    }
-
-    function generatePdfSheet() {
-      const d = getFormData();
-      if (!validate(d)) return;
-      downloadItemPdf(d);
-    }
-
-    function downloadItemPdf(item) {
-      fillPdf(item);
-      const container = document.getElementById('pdf-container');
-      const safeName = (item.client_name || 'клиент').replace(/[^a-zA-Zа-яА-Я0-9_-]/g, '_');
-      const filename = `Замер_${item.id}_${safeName}.pdf`;
-
-      const opt = {
-        margin: [8, 8, 8, 8],
-        filename: filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().set(opt).from(container).toPdf().get('pdf').then(function(pdf) {
-        const blob = pdf.output('blob');
-        const blobUrl = URL.createObjectURL(blob);
-
-        if (tg && typeof tg.downloadFile === 'function') {
-          tg.downloadFile({ url: blobUrl, file_name: filename });
-          return;
-        }
-
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-      }).catch(function(err) {
-        html2pdf().set(opt).from(container).save();
-      });
     }
 
     function renderList(list) {
@@ -1249,7 +1024,7 @@
             </div>
             
             <div class="order-actions">
-              <button type="button" class="btn-action btn-action-pdf" onclick='downloadItemPdf(${JSON.stringify(item)})'>📄 PDF</button>
+              <button type="button" class="btn-action btn-action-pdf" onclick="downloadItemPdfById('${item.id}')">📄 PDF</button>
               <button type="button" class="btn-action btn-action-edit" onclick="editOrder('${item.id}')">✏️ Изменить</button>
               <button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑 Удалить</button>
             </div>
