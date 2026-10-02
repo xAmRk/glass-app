@@ -335,7 +335,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 56</span>
+    <span class="version-tag">Версия: 57</span>
   </div>
 
   <div class="tabs">
@@ -655,7 +655,7 @@
           <input type="number" id="shower_h" inputmode="numeric" placeholder="напр: 2000" value="2000">
         </div>
 
-        <!-- РАЗДЕЛЬНАЯ ШИРИНА БОРТОВ (БЕЗ СЛОВА «ПОЛКИ») -->
+        <!-- ШИРИНА БОРТОВ -->
         <div id="row_two_curbs" class="grid-2">
           <div class="form-group">
             <label>Ширина борта 1 (мм)</label>
@@ -674,18 +674,32 @@
 
         <!-- РАЗМЕРЫ БОРТОВ / ПРОЕМА -->
         <div class="measure-box" id="box_shower_sizes">
+          <!-- 1. Г-ОБРАЗНАЯ -->
           <div id="fields_corner">
-            <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Размеры бортов Г-образной (мм)</label>
+            <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Размеры бортов (мм)</label>
+            
             <div class="grid-2">
               <div class="form-group">
-                <label>Борт 1 (Левый) по краю</label>
-                <input type="number" id="corner_l1" inputmode="numeric" placeholder="напр: 900">
+                <label>Борт 1 (Левый) снаружи</label>
+                <input type="number" id="corner_l1_out" inputmode="numeric" placeholder="напр: 900">
               </div>
               <div class="form-group">
-                <label>Борт 2 (Правый) по краю</label>
-                <input type="number" id="corner_l2" inputmode="numeric" placeholder="напр: 900">
+                <label>Борт 1 (Левый) внутри</label>
+                <input type="number" id="corner_l1_in" inputmode="numeric" placeholder="напр: 830">
               </div>
             </div>
+
+            <div class="grid-2" style="margin-top:4px;">
+              <div class="form-group">
+                <label>Борт 2 (Правый) снаружи</label>
+                <input type="number" id="corner_l2_out" inputmode="numeric" placeholder="напр: 900">
+              </div>
+              <div class="form-group">
+                <label>Борт 2 (Правый) внутри</label>
+                <input type="number" id="corner_l2_in" inputmode="numeric" placeholder="напр: 830">
+              </div>
+            </div>
+
             <div class="grid-2" style="margin-top:6px;">
               <div class="form-group">
                 <label>Завал борта 1 (уклон)</label>
@@ -698,6 +712,7 @@
             </div>
           </div>
 
+          <!-- 2. ПРЯМАЯ В НИШУ -->
           <div id="fields_straight" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина проема от стены до стены (мм)</label>
             <div class="grid-3">
@@ -707,6 +722,7 @@
             </div>
           </div>
 
+          <!-- 3. ТРАПЕЦИЯ 135° -->
           <div id="fields_trap" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Участки бортов трапеции (мм)</label>
             <div class="grid-3">
@@ -738,16 +754,21 @@
           </div>
         </div>
 
-        <!-- ТОЧНЫЙ БЛОК: УКЛОН БОРТА/ПОЛА К СТЕНЕ -->
-        <div class="grid-2">
+        <!-- РАЗДЕЛЬНЫЙ УКЛОН К СТЕНЕ ДЛЯ 2 БОРТОВ (БЕЗ ВЫСОТЫ БОРТА) -->
+        <div id="row_two_slopes" class="grid-2">
           <div class="form-group">
-            <label>Уклон борта/пола к стене</label>
-            <input type="text" id="floor_slope_info" placeholder="напр: 3 мм или Без уклона">
+            <label>Уклон борта/пола к стене (Борт 1)</label>
+            <input type="text" id="floor_slope_1" placeholder="напр: 3 мм или Без уклона">
           </div>
           <div class="form-group">
-            <label>Высота борта / порога (мм)</label>
-            <input type="text" id="curb_h_info" placeholder="напр: 60 мм (или Вровень)">
+            <label>Уклон борта/пола к стене (Борт 2)</label>
+            <input type="text" id="floor_slope_2" placeholder="напр: 3 мм или Без уклона">
           </div>
+        </div>
+
+        <div id="row_one_slope" class="form-group" style="display: none;">
+          <label>Уклон борта/пола к стене</label>
+          <input type="text" id="floor_slope_single" placeholder="напр: 3 мм или Без уклона">
         </div>
       </div>
 
@@ -799,7 +820,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v56';
+    const LOCAL_KEY = 'glass_orders_db_v57';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -880,8 +901,10 @@
       const fStraight = document.getElementById('fields_straight');
       const fTrap = document.getElementById('fields_trap');
 
-      const rowTwo = document.getElementById('row_two_curbs');
-      const rowOne = document.getElementById('row_one_curb');
+      const rowTwoCurbs = document.getElementById('row_two_curbs');
+      const rowOneCurb = document.getElementById('row_one_curb');
+      const rowTwoSlopes = document.getElementById('row_two_slopes');
+      const rowOneSlope = document.getElementById('row_one_slope');
 
       fCorner.style.display = 'none';
       fStraight.style.display = 'none';
@@ -889,16 +912,22 @@
 
       if (typeName.includes('Г-образная')) {
         fCorner.style.display = 'block';
-        rowTwo.style.display = 'grid';
-        rowOne.style.display = 'none';
+        rowTwoCurbs.style.display = 'grid';
+        rowOneCurb.style.display = 'none';
+        rowTwoSlopes.style.display = 'grid';
+        rowOneSlope.style.display = 'none';
       } else if (typeName.includes('Прямая')) {
         fStraight.style.display = 'block';
-        rowTwo.style.display = 'none';
-        rowOne.style.display = 'block';
+        rowTwoCurbs.style.display = 'none';
+        rowOneCurb.style.display = 'block';
+        rowTwoSlopes.style.display = 'none';
+        rowOneSlope.style.display = 'block';
       } else if (typeName.includes('Трапеция')) {
         fTrap.style.display = 'block';
-        rowTwo.style.display = 'grid';
-        rowOne.style.display = 'none';
+        rowTwoCurbs.style.display = 'grid';
+        rowOneCurb.style.display = 'none';
+        rowTwoSlopes.style.display = 'grid';
+        rowOneSlope.style.display = 'none';
       }
     }
 
@@ -991,8 +1020,12 @@
       } else {
         const showerType = document.getElementById('shower_type').value;
         const isStraight = showerType.includes('Прямая');
+        
         const curbW1 = isStraight ? (document.getElementById('shower_curb_single').value.trim() || '-') : (document.getElementById('shower_curb_w1').value.trim() || '-');
         const curbW2 = isStraight ? '-' : (document.getElementById('shower_curb_w2').value.trim() || '-');
+
+        const slope1 = isStraight ? (document.getElementById('floor_slope_single').value.trim() || 'Без уклона') : (document.getElementById('floor_slope_1').value.trim() || 'Без уклона');
+        const slope2 = isStraight ? '-' : (document.getElementById('floor_slope_2').value.trim() || 'Без уклона');
 
         return {
           ...base,
@@ -1000,8 +1033,11 @@
           shower_h: document.getElementById('shower_h').value.trim() || '2000',
           shower_curb_w1: curbW1,
           shower_curb_w2: curbW2,
-          corner_l1: document.getElementById('corner_l1').value.trim() || '-',
-          corner_l2: document.getElementById('corner_l2').value.trim() || '-',
+          // Раздельные борта
+          corner_l1_out: document.getElementById('corner_l1_out').value.trim() || '-',
+          corner_l1_in: document.getElementById('corner_l1_in').value.trim() || '-',
+          corner_l2_out: document.getElementById('corner_l2_out').value.trim() || '-',
+          corner_l2_in: document.getElementById('corner_l2_in').value.trim() || '-',
           corner_tilt_b1: document.getElementById('corner_tilt_b1').value.trim() || '-',
           corner_tilt_b2: document.getElementById('corner_tilt_b2').value.trim() || '-',
           straight_w_bottom: document.getElementById('straight_w_bottom').value.trim() || '-',
@@ -1014,8 +1050,8 @@
           trap_angles: document.getElementById('trap_angles').value.trim() || '135°',
           tilt_wall_left: document.getElementById('tilt_wall_left').value.trim() || '0 (в норме)',
           tilt_wall_right: document.getElementById('tilt_wall_right').value.trim() || '0 (в норме)',
-          floor_slope_info: document.getElementById('floor_slope_info').value.trim() || 'Без уклона',
-          curb_h_info: document.getElementById('curb_h_info').value.trim() || '-'
+          floor_slope_1: slope1,
+          floor_slope_2: slope2
         };
       }
     }
@@ -1032,8 +1068,8 @@
         }
       } else {
         if (data.shower_type.includes('Г-образная')) {
-          if (!data.corner_l1 || data.corner_l1 === '-') {
-            alert('Укажите размеры бортов Г-образной душевой (мм)');
+          if (!data.corner_l1_out || data.corner_l1_out === '-') {
+            alert('Укажите размеры бортов Г-образной душевой (снаружи / внутри в мм)');
             return false;
           }
         } else if (data.shower_type.includes('Прямая')) {
@@ -1106,7 +1142,9 @@
         } else {
           const st = item.shower_type || 'Душевая';
           if (st.includes('Г-образная')) {
-            sizeInfo = `${st} | Борта: ${item.corner_l1} x ${item.corner_l2} мм | H: ${item.shower_h || 2000} мм`;
+            const b1 = item.corner_l1_out || item.corner_l1 || '-';
+            const b2 = item.corner_l2_out || item.corner_l2 || '-';
+            sizeInfo = `${st} | Борта: ${b1} x ${b2} мм | H: ${item.shower_h || 2000} мм`;
           } else if (st.includes('Прямая')) {
             sizeInfo = `${st} | Проем: ${item.straight_w_bottom || '-'} мм | H: ${item.shower_h || 2000} мм`;
           } else if (st.includes('Трапеция')) {
