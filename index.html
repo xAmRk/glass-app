@@ -335,7 +335,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 55</span>
+    <span class="version-tag">Версия: 56</span>
   </div>
 
   <div class="tabs">
@@ -650,12 +650,12 @@
 
         <input type="hidden" id="shower_type" value="Г-образная (90°)">
 
-        <!-- ВЫСОТА И ШИРИНА БОРТОВ (РАЗДЕЛЬНО БОРТ 1 И БОРТ 2) -->
         <div class="form-group">
           <label>Высота стекла (мм) *</label>
           <input type="number" id="shower_h" inputmode="numeric" placeholder="напр: 2000" value="2000">
         </div>
 
+        <!-- РАЗДЕЛЬНАЯ ШИРИНА БОРТОВ (БЕЗ СЛОВА «ПОЛКИ») -->
         <div id="row_two_curbs" class="grid-2">
           <div class="form-group">
             <label>Ширина борта 1 (мм)</label>
@@ -674,7 +674,6 @@
 
         <!-- РАЗМЕРЫ БОРТОВ / ПРОЕМА -->
         <div class="measure-box" id="box_shower_sizes">
-          <!-- 1. Г-ОБРАЗНАЯ -->
           <div id="fields_corner">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Размеры бортов Г-образной (мм)</label>
             <div class="grid-2">
@@ -699,7 +698,6 @@
             </div>
           </div>
 
-          <!-- 2. ПРЯМАЯ В НИШУ -->
           <div id="fields_straight" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина проема от стены до стены (мм)</label>
             <div class="grid-3">
@@ -709,7 +707,6 @@
             </div>
           </div>
 
-          <!-- 3. ТРАПЕЦИЯ 135° -->
           <div id="fields_trap" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Участки бортов трапеции (мм)</label>
             <div class="grid-3">
@@ -741,10 +738,11 @@
           </div>
         </div>
 
+        <!-- ТОЧНЫЙ БЛОК: УКЛОН БОРТА/ПОЛА К СТЕНЕ -->
         <div class="grid-2">
           <div class="form-group">
-            <label>Уклон пола / борта к трапу</label>
-            <input type="text" id="floor_slope_info" placeholder="напр: 5 мм к трапу">
+            <label>Уклон борта/пола к стене</label>
+            <input type="text" id="floor_slope_info" placeholder="напр: 3 мм или Без уклона">
           </div>
           <div class="form-group">
             <label>Высота борта / порога (мм)</label>
@@ -801,7 +799,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v55';
+    const LOCAL_KEY = 'glass_orders_db_v56';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
