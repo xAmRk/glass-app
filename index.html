@@ -351,7 +351,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 42</span>
+    <span class="version-tag">Версия: 43</span>
   </div>
 
   <div class="tabs">
@@ -684,7 +684,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 42</div>
+        <div>Версия: 43</div>
       </div>
     </div>
 
@@ -746,9 +746,9 @@
       tg.ready();
     }
 
-    // Защищенный HTTPS URL вашего сервера через Nginx
-    const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v42';
+    // Точный рабочий URL через Nginx Reverse Proxy
+    const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
+    const LOCAL_KEY = 'glass_orders_db_v43';
 
     let currentOrders = [];
 
@@ -765,7 +765,7 @@
       currentOrders = list;
     }
 
-    // ПРЯМОЙ ЗАПРОС К БАЗЕ НА СЕРВЕРЕ
+    // Запрос базы данных с сервера
     async function fetchServerOrders() {
       try {
         const res = await fetch(SERVER_API_URL, { cache: 'no-store' });
@@ -777,7 +777,7 @@
           }
         }
       } catch (e) {
-        console.warn("Server API fetch warning, fallback to local:", e);
+        console.warn("API fetch error, fallback to local:", e);
       }
       return loadLocal();
     }
@@ -1255,7 +1255,6 @@
       renderList(filtered);
     }
 
-    // Фоновая загрузка базы при открытии приложения
     window.addEventListener('DOMContentLoaded', () => {
       fetchServerOrders();
     });
