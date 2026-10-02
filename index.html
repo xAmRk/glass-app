@@ -111,6 +111,7 @@
 
     .form-group {
       margin-bottom: 10px;
+      min-width: 0;
     }
 
     .form-group:last-child {
@@ -123,10 +124,8 @@
       font-weight: 600;
       color: var(--hint);
       margin-bottom: 4px;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.25;
+      word-break: break-word;
     }
 
     input, select, textarea {
@@ -174,26 +173,33 @@
 
     .grid-2 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 8px;
+    }
+
+    .grid-2-align-end {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: end;
     }
 
     .grid-3 {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
       gap: 6px;
     }
 
     .scheme-grid-3 {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
       gap: 8px;
       margin-bottom: 12px;
     }
 
     .niche-grid-4 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 8px;
       margin-bottom: 12px;
     }
@@ -359,7 +365,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 63</span>
+    <span class="version-tag">Версия: 64</span>
   </div>
 
   <div class="tabs">
@@ -698,28 +704,28 @@
 
         <!-- ДЛИНА КРАЕВ БОРТОВ / ПРОЕМА -->
         <div class="measure-box" id="box_shower_sizes">
-          <!-- 1. Г-ОБРАЗНАЯ -->
+          <!-- 1. Г-ОБРАЗНАЯ: ВЫРАВНЕННЫЕ ЗАГОЛОВКИ -->
           <div id="fields_corner">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Длина краёв бортов (мм)</label>
             
-            <div class="grid-2">
+            <div class="grid-2-align-end">
               <div class="form-group">
-                <label>Борт 1 (Левый) край снаружи</label>
+                <label style="min-height: 28px; display: flex; align-items: flex-end;">Борт 1: край снаружи</label>
                 <input type="number" id="corner_l1_out" inputmode="numeric" placeholder="напр: 900">
               </div>
               <div class="form-group">
-                <label>Борт 1 (Левый) край внутри</label>
+                <label style="min-height: 28px; display: flex; align-items: flex-end;">Борт 1: край внутри</label>
                 <input type="number" id="corner_l1_in" inputmode="numeric" placeholder="напр: 830">
               </div>
             </div>
 
-            <div class="grid-2" style="margin-top:4px;">
+            <div class="grid-2-align-end" style="margin-top: 6px;">
               <div class="form-group">
-                <label>Борт 2 (Правый) край снаружи</label>
+                <label style="min-height: 28px; display: flex; align-items: flex-end;">Борт 2: край снаружи</label>
                 <input type="number" id="corner_l2_out" inputmode="numeric" placeholder="напр: 900">
               </div>
               <div class="form-group">
-                <label>Борт 2 (Правый) край внутри</label>
+                <label style="min-height: 28px; display: flex; align-items: flex-end;">Борт 2: край внутри</label>
                 <input type="number" id="corner_l2_in" inputmode="numeric" placeholder="напр: 830">
               </div>
             </div>
@@ -768,21 +774,21 @@
         </div>
 
         <!-- УКЛОНЫ К СТЕНЕ: Г-ОБРАЗНАЯ И ТРАПЕЦИЯ -->
-        <div id="row_two_slopes" class="grid-2">
+        <div id="row_two_slopes" class="grid-2-align-end">
           <div class="form-group">
-            <label>Уклон: Борт 1 (Левый)</label>
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Уклон: Борт 1 (Левый)</label>
             <input type="text" id="floor_slope_1" placeholder="напр: 3 мм или Без уклона">
           </div>
           <div class="form-group">
-            <label>Уклон: Борт 2 (Правый)</label>
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Уклон: Борт 2 (Правый)</label>
             <input type="text" id="floor_slope_2" placeholder="напр: 3 мм или Без уклона">
           </div>
         </div>
 
         <!-- УКЛОН ДЛЯ ПРЯМОЙ: КОМПАКТНЫЕ ОДНОСТРОЧНЫЕ НАЗВАНИЯ -->
-        <div id="row_straight_slope" class="grid-2" style="display: none;">
+        <div id="row_straight_slope" class="grid-2-align-end" style="display: none;">
           <div class="form-group">
-            <label>Куда уклон</label>
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Куда уклон</label>
             <select id="straight_slope_dir">
               <option value="Без уклона (в уровне)" selected>Без уклона (в уровне)</option>
               <option value="Уклон к левой стене">К левой стене</option>
@@ -791,7 +797,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Перепад (мм)</label>
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Перепад (мм)</label>
             <input type="text" id="straight_slope_val" placeholder="напр: 4 мм (или 0)">
           </div>
         </div>
@@ -845,7 +851,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v63';
+    const LOCAL_KEY = 'glass_orders_db_v64';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
