@@ -124,6 +124,9 @@
       color: var(--hint);
       margin-bottom: 4px;
       line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     input, select, textarea {
@@ -173,13 +176,6 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-    }
-
-    .grid-2-align-end {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      align-items: end;
     }
 
     .grid-3 {
@@ -363,7 +359,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 62</span>
+    <span class="version-tag">Версия: 63</span>
   </div>
 
   <div class="tabs">
@@ -774,28 +770,28 @@
         <!-- УКЛОНЫ К СТЕНЕ: Г-ОБРАЗНАЯ И ТРАПЕЦИЯ -->
         <div id="row_two_slopes" class="grid-2">
           <div class="form-group">
-            <label>Уклон к стене: Борт 1 (Левый)</label>
+            <label>Уклон: Борт 1 (Левый)</label>
             <input type="text" id="floor_slope_1" placeholder="напр: 3 мм или Без уклона">
           </div>
           <div class="form-group">
-            <label>Уклон к стене: Борт 2 (Правый)</label>
+            <label>Уклон: Борт 2 (Правый)</label>
             <input type="text" id="floor_slope_2" placeholder="напр: 3 мм или Без уклона">
           </div>
         </div>
 
-        <!-- УКЛОН ДЛЯ ПРЯМОЙ: ВЫРАВНЕННАЯ СТРОКА -->
-        <div id="row_straight_slope" class="grid-2-align-end" style="display: none;">
+        <!-- УКЛОН ДЛЯ ПРЯМОЙ: КОМПАКТНЫЕ ОДНОСТРОЧНЫЕ НАЗВАНИЯ -->
+        <div id="row_straight_slope" class="grid-2" style="display: none;">
           <div class="form-group">
-            <label style="min-height: 32px; display: flex; align-items: flex-end;">Направление уклона пола/борта</label>
+            <label>Куда уклон</label>
             <select id="straight_slope_dir">
               <option value="Без уклона (в уровне)" selected>Без уклона (в уровне)</option>
-              <option value="Уклон к левой стене">Уклон к левой стене</option>
-              <option value="Уклон к правой стене">Уклон к правой стене</option>
-              <option value="Уклон к центру">Уклон к центру</option>
+              <option value="Уклон к левой стене">К левой стене</option>
+              <option value="Уклон к правой стене">К правой стене</option>
+              <option value="Уклон к центру">К центру</option>
             </select>
           </div>
           <div class="form-group">
-            <label style="min-height: 32px; display: flex; align-items: flex-end;">Перепад уклона (мм)</label>
+            <label>Перепад (мм)</label>
             <input type="text" id="straight_slope_val" placeholder="напр: 4 мм (или 0)">
           </div>
         </div>
@@ -849,7 +845,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v62';
+    const LOCAL_KEY = 'glass_orders_db_v63';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
