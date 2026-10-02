@@ -123,6 +123,7 @@
       font-weight: 600;
       color: var(--hint);
       margin-bottom: 4px;
+      line-height: 1.2;
     }
 
     input, select, textarea {
@@ -166,6 +167,13 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
+    }
+
+    .grid-2-align-end {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-items: end;
     }
 
     .grid-3 {
@@ -334,7 +342,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 53</span>
+    <span class="version-tag">Версия: 54</span>
   </div>
 
   <div class="tabs">
@@ -391,24 +399,26 @@
         </div>
       </div>
 
-      <!-- 2. Изделие и стекло -->
+      <!-- 2. Изделие и стекло (Единая структура, выбор "Согласовать" по умолчанию) -->
       <div class="card">
         <div class="card-title">📐 2. Тип изделия и стекло</div>
         <div class="grid-2">
           <div class="form-group">
             <label>Конструкция</label>
             <select id="construct_type" onchange="onConstructTypeChange()">
-              <option value="Стеклянные полки">Стеклянные полки</option>
-              <option value="Душевая" selected>Душевая</option>
+              <option value="Стеклянные полки" selected>Стеклянные полки</option>
+              <option value="Душевая">Душевая</option>
             </select>
           </div>
           <div class="form-group">
             <label>Толщина стекла</label>
             <select id="glass_thickness">
-              <option value="8 мм" selected>8 мм</option>
-              <option value="Согласовать">Согласовать</option>
+              <option value="Согласовать" selected>Согласовать</option>
+              <option value="4 мм">4 мм</option>
               <option value="6 мм">6 мм</option>
+              <option value="8 мм">8 мм</option>
               <option value="10 мм">10 мм</option>
+              <option value="12 мм">12 мм</option>
             </select>
           </div>
         </div>
@@ -417,25 +427,36 @@
           <div class="form-group">
             <label>Цвет стекла</label>
             <select id="glass_color">
-              <option value="Бесцветное" selected>Бесцветное</option>
-              <option value="Согласовать">Согласовать</option>
-              <option value="Осветленное (Кристалл)">Осветленное (Кристалл)</option>
-              <option value="Серое (Графит)">Серое (Графит)</option>
+              <option value="Согласовать" selected>Согласовать</option>
+              <option value="Бесцветное">Бесцветное</option>
+              <option value="Серое">Серое</option>
               <option value="Бронза">Бронза</option>
-              <option value="Матовое">Матовое</option>
+              <option value="Кристалл">Кристалл</option>
+              <option value="Черное">Черное</option>
+              <option value="Рифленое">Рифленое</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Цвет фурнитуры</label>
-            <select id="hardware_color" onchange="toggleCustomHardwareColor()">
-              <option value="Хром (глянец)" selected>Хром (глянец)</option>
-              <option value="Черный матовый">Черный матовый</option>
-              <option value="Шлифованная сталь">Шлифованная сталь</option>
-              <option value="Золото">Золото</option>
-              <option value="Бронза">Бронза</option>
-              <option value="Другой">Другой</option>
+            <label>Матирование</label>
+            <select id="glass_matte">
+              <option value="Согласовать" selected>Согласовать</option>
+              <option value="Нет">Нет</option>
+              <option value="Хим мат">Хим мат</option>
+              <option value="Пескоструй">Пескоструй</option>
             </select>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label>Цвет фурнитуры</label>
+          <select id="hardware_color" onchange="toggleCustomHardwareColor()">
+            <option value="Согласовать" selected>Согласовать</option>
+            <option value="Хром">Хром</option>
+            <option value="Черный">Черный</option>
+            <option value="Бронза">Бронза</option>
+            <option value="Золото">Золото</option>
+            <option value="Другой">Другой</option>
+          </select>
         </div>
 
         <div class="form-group" id="custom_hw_group" style="display: none;">
@@ -444,8 +465,8 @@
         </div>
       </div>
 
-      <!-- 3А. РАЗМЕРЫ: ПОЛКИ -->
-      <div class="card" id="shelf_measure_card" style="display: none;">
+      <!-- 3А. РАЗМЕРЫ: ПОЛКИ (ПО УМОЛЧАНИЮ) -->
+      <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
         <div class="niche-grid-4">
@@ -594,19 +615,15 @@
         </div>
       </div>
 
-      <!-- 3Б. РАЗМЕРЫ: ДУШЕВЫЕ (3 КОНФИГУРАЦИИ) -->
-      <div class="card" id="shower_measure_card">
+      <!-- 3Б. РАЗМЕРЫ: ДУШЕВЫЕ (ПРИ ВЫБОРЕ ДУШЕВОЙ) -->
+      <div class="card" id="shower_measure_card" style="display: none;">
         <div class="card-title">🚿 3. Конфигурация душевой (вид сверху)</div>
 
-        <!-- 3 ВИДА ДУШЕВЫХ С SVG СХЕМАМИ -->
         <div class="scheme-grid-3">
-          <!-- 1. Г-образная -->
           <div class="scheme-option active" id="shower_btn_corner" onclick="selectShowerType('Г-образная (90°)', this)">
             <svg class="scheme-svg" viewBox="0 0 60 50">
-              <!-- Стены -->
               <line x1="8" y1="8" x2="8" y2="44" stroke="#94a3b8" stroke-width="3.5" />
               <line x1="8" y1="8" x2="52" y2="8" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Стекла / Борта -->
               <line x1="8" y1="44" x2="46" y2="44" stroke="#60a5fa" stroke-width="2.5" />
               <line x1="46" y1="8" x2="46" y2="44" stroke="#60a5fa" stroke-width="2.5" />
               <rect x="8" y="8" width="38" height="36" fill="rgba(59, 130, 246, 0.15)" />
@@ -614,27 +631,21 @@
             <span class="scheme-label">Г-образная 90°</span>
           </div>
 
-          <!-- 2. Прямая (в нишу) -->
           <div class="scheme-option" id="shower_btn_straight" onclick="selectShowerType('Прямая (в нишу)', this)">
             <svg class="scheme-svg" viewBox="0 0 60 50">
-              <!-- 3 Стены -->
               <line x1="10" y1="10" x2="50" y2="10" stroke="#94a3b8" stroke-width="3.5" />
               <line x1="10" y1="10" x2="10" y2="42" stroke="#94a3b8" stroke-width="3.5" />
               <line x1="50" y1="10" x2="50" y2="42" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Стекло / перегородка -->
               <line x1="10" y1="42" x2="50" y2="42" stroke="#60a5fa" stroke-width="3" stroke-dasharray="3,1" />
               <rect x="10" y="10" width="40" height="32" fill="rgba(59, 130, 246, 0.15)" />
             </svg>
             <span class="scheme-label">Прямая (ниша)</span>
           </div>
 
-          <!-- 3. Трапеция 135° -->
           <div class="scheme-option" id="shower_btn_trap" onclick="selectShowerType('Трапеция (135°)', this)">
             <svg class="scheme-svg" viewBox="0 0 60 50">
-              <!-- 2 Стены в углу -->
               <line x1="8" y1="8" x2="8" y2="44" stroke="#94a3b8" stroke-width="3.5" />
               <line x1="8" y1="8" x2="52" y2="8" stroke="#94a3b8" stroke-width="3.5" />
-              <!-- Трапеция 3 сегмента -->
               <line x1="8" y1="44" x2="24" y2="44" stroke="#60a5fa" stroke-width="2.5" />
               <line x1="24" y1="44" x2="48" y2="22" stroke="#38bdf8" stroke-width="2.5" />
               <line x1="48" y1="22" x2="52" y2="8" stroke="#60a5fa" stroke-width="2.5" />
@@ -646,21 +657,20 @@
 
         <input type="hidden" id="shower_type" value="Г-образная (90°)">
 
-        <!-- ВЫСОТА ИЗДЕЛИЯ -->
-        <div class="grid-2">
+        <!-- ВЫСОТА И ВЫРОВНЕННАЯ ШИРИНА БОРТА -->
+        <div class="grid-2-align-end">
           <div class="form-group">
-            <label>Высота стекла (мм) *</label>
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Высота стекла (мм) *</label>
             <input type="number" id="shower_h" inputmode="numeric" placeholder="напр: 2000" value="2000">
           </div>
           <div class="form-group">
-            <label>Ширина борта / полки (мм)</label>
+            <label style="min-height: 28px; display: flex; align-items: flex-end;">Ширина борта / полки (мм)</label>
             <input type="number" id="shower_curb_w" inputmode="numeric" placeholder="напр: 70">
           </div>
         </div>
 
-        <!-- ДИНАМИЧЕСКИЙ БЛОК: РАЗМЕРЫ БОРТОВ / ПРОЕМА -->
+        <!-- РАЗМЕРЫ БОРТОВ / ПРОЕМА -->
         <div class="measure-box" id="box_shower_sizes">
-          <!-- 1. ПОЛЯ ДЛЯ Г-ОБРАЗНОЙ -->
           <div id="fields_corner">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Размеры бортов Г-образной (мм)</label>
             <div class="grid-2">
@@ -685,7 +695,6 @@
             </div>
           </div>
 
-          <!-- 2. ПОЛЯ ДЛЯ ПРЯМОЙ В НИШУ -->
           <div id="fields_straight" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина проема от стены до стены (мм)</label>
             <div class="grid-3">
@@ -695,7 +704,6 @@
             </div>
           </div>
 
-          <!-- 3. ПОЛЯ ДЛЯ ТРАПЕЦИИ 135° -->
           <div id="fields_trap" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Участки бортов трапеции (мм)</label>
             <div class="grid-3">
@@ -716,7 +724,6 @@
           </div>
         </div>
 
-        <!-- ЗАВАЛ СТЕН И ПОЛА -->
         <div class="grid-2" style="margin-top: 10px;">
           <div class="form-group">
             <label>Завал левой стены (мм)</label>
@@ -735,7 +742,7 @@
           </div>
           <div class="form-group">
             <label>Высота борта / порога (мм)</label>
-            <input type="text" id="curb_h_info" placeholder="напр: 60 мм (или Вровень с полом)">
+            <input type="text" id="curb_h_info" placeholder="напр: 60 мм (или Вровень)">
           </div>
         </div>
       </div>
@@ -788,7 +795,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v53';
+    const LOCAL_KEY = 'glass_orders_db_v54';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -896,6 +903,17 @@
     function getFormData() {
       const editingId = document.getElementById('editing_order_id').value;
       const construct = document.getElementById('construct_type').value;
+      const colorVal = document.getElementById('glass_color').value;
+      const matteVal = document.getElementById('glass_matte').value;
+      
+      let fullGlass = colorVal;
+      if (colorVal === 'Согласовать' && matteVal === 'Согласовать') {
+        fullGlass = 'Согласовать';
+      } else if (matteVal === 'Согласовать') {
+        fullGlass = `${colorVal}, Матирование: Согласовать`;
+      } else if (matteVal !== 'Нет') {
+        fullGlass = `${colorVal}, ${matteVal}`;
+      }
 
       let hwColor = document.getElementById('hardware_color').value;
       if (hwColor === 'Другой') {
@@ -925,7 +943,7 @@
         floor_info: combinedFloorInfo,
         construct_type: construct,
         glass_thickness: document.getElementById('glass_thickness').value,
-        glass_color: document.getElementById('glass_color').value,
+        glass_color: fullGlass,
         hardware_color: hwColor,
         wall_material: document.getElementById('wall_material').value,
         notes: document.getElementById('notes').value.trim() || '-'
@@ -958,29 +976,24 @@
           shelf_corners: document.getElementById('shelf_corners').value
         };
       } else {
-        // ДУШЕВЫЕ
         const showerType = document.getElementById('shower_type').value;
         return {
           ...base,
           shower_type: showerType,
           shower_h: document.getElementById('shower_h').value.trim() || '2000',
           shower_curb_w: document.getElementById('shower_curb_w').value.trim() || '-',
-          // Г-образная
           corner_l1: document.getElementById('corner_l1').value.trim() || '-',
           corner_l2: document.getElementById('corner_l2').value.trim() || '-',
           corner_tilt_b1: document.getElementById('corner_tilt_b1').value.trim() || '-',
           corner_tilt_b2: document.getElementById('corner_tilt_b2').value.trim() || '-',
-          // Прямая
           straight_w_bottom: document.getElementById('straight_w_bottom').value.trim() || '-',
           straight_w_mid: document.getElementById('straight_w_mid').value.trim() || '-',
           straight_w_top: document.getElementById('straight_w_top').value.trim() || '-',
-          // Трапеция
           trap_seg1: document.getElementById('trap_seg1').value.trim() || '-',
           trap_seg2: document.getElementById('trap_seg2').value.trim() || '-',
           trap_seg3: document.getElementById('trap_seg3').value.trim() || '-',
           trap_diag: document.getElementById('trap_diag').value.trim() || '-',
           trap_angles: document.getElementById('trap_angles').value.trim() || '135°',
-          // Стены и уклоны
           tilt_wall_left: document.getElementById('tilt_wall_left').value.trim() || '0 (в норме)',
           tilt_wall_right: document.getElementById('tilt_wall_right').value.trim() || '0 (в норме)',
           floor_slope_info: document.getElementById('floor_slope_info').value.trim() || 'Без уклона',
@@ -1077,7 +1090,7 @@
           if (st.includes('Г-образная')) {
             sizeInfo = `${st} | Борта: ${item.corner_l1} x ${item.corner_l2} мм | H: ${item.shower_h || 2000} мм`;
           } else if (st.includes('Прямая')) {
-            sizeInfo = `${st} | Проем: ${item.straight_w_bottom || item.w_bottom} мм | H: ${item.shower_h || 2000} мм`;
+            sizeInfo = `${st} | Проем: ${item.straight_w_bottom || '-'} мм | H: ${item.shower_h || 2000} мм`;
           } else if (st.includes('Трапеция')) {
             sizeInfo = `${st} | Борта: ${item.trap_seg1} / ${item.trap_seg2} / ${item.trap_seg3} мм | H: ${item.shower_h || 2000} мм`;
           } else {
