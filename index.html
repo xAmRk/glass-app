@@ -306,7 +306,6 @@
       color: #fff;
     }
 
-    /* Контейнер PDF: скрыт из видимости экрана, но доступен для html2pdf */
     #pdf-container {
       position: absolute;
       left: -9999px;
@@ -352,7 +351,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 39</span>
+    <span class="version-tag">Версия: 41</span>
   </div>
 
   <div class="tabs">
@@ -682,7 +681,7 @@
       </div>
       <div style="text-align: right; font-size: 11px;">
         <div id="pdf_date"></div>
-        <div>Версия: 39</div>
+        <div>Версия: 41</div>
       </div>
     </div>
 
@@ -744,8 +743,7 @@
       tg.ready();
     }
 
-    const LOCAL_KEY = 'glass_orders_db_v38';
-    const CLOUD_KEY = 'orders_list_json';
+    const LOCAL_KEY = 'glass_orders_db_v41';
 
     function loadLocal() {
       try {
@@ -759,60 +757,31 @@
       localStorage.setItem(LOCAL_KEY, JSON.stringify(list));
     }
 
-    async function loadFromCloud() {
-      return new Promise((resolve) => {
-        if (tg && tg.CloudStorage) {
-          tg.CloudStorage.getItem(CLOUD_KEY, (err, val) => {
-            if (!err && val) {
-              try {
-                const parsed = JSON.parse(val);
-                if (Array.isArray(parsed)) {
-                  saveAllLocal(parsed);
-                  return resolve(parsed);
-                }
-              } catch (e) {}
-            }
-            resolve(loadLocal());
-          });
-        } else {
-          resolve(loadLocal());
+    // Чтение синхронизированной базы сервера прямо из параметров запуска кнопки
+    function syncFromServerHash() {
+      try {
+        const hash = window.location.hash;
+        if (hash && hash.includes('sync=')) {
+          const raw = hash.split('sync=')[1];
+          const decoded = decodeURIComponent(raw);
+          const serverList = JSON.parse(decoded);
+          if (Array.isArray(serverList) && serverList.length > 0) {
+            // Объединяем с локальными данными без дубликатов
+            const local = loadLocal();
+            const map = new Map();
+            serverList.forEach(item => map.set(item.id, item));
+            local.forEach(item => {
+              if (!map.has(item.id)) map.set(item.id, item);
+            });
+            const merged = Array.from(map.values());
+            saveAllLocal(merged);
+            return merged;
+          }
         }
-      });
-    }
-
-    async function saveToCloud(list) {
-      if (tg && tg.CloudStorage) {
-        try {
-          tg.CloudStorage.setItem(CLOUD_KEY, JSON.stringify(list.slice(0, 30)));
-        } catch (e) {}
+      } catch (e) {
+        console.error("Hash sync error:", e);
       }
-    }
-
-    async function saveOrUpdateOrder(item) {
-      const all = await loadFromCloud();
-      const existingIdx = all.findIndex(o => o.id === item.id);
-      if (existingIdx >= 0) {
-        all[existingIdx] = item;
-      } else {
-        all.unshift(item);
-      }
-      saveAllLocal(all);
-      await saveToCloud(all);
-    }
-
-    async function deleteOrder(orderId) {
-      if (!confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
-        return;
-      }
-      const all = await loadFromCloud();
-      const filtered = all.filter(o => o.id !== orderId);
-      saveAllLocal(filtered);
-      await saveToCloud(filtered);
-      renderList(filtered);
-
-      if (tg && tg.sendData) {
-        tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
-      }
+      return loadLocal();
     }
 
     function editOrder(orderId) {
@@ -881,7 +850,7 @@
       onConstructTypeChange();
     }
 
-    async function switchView(tab) {
+    function switchView(tab) {
       document.getElementById('tabNew').classList.toggle('active', tab === 'new');
       document.getElementById('tabHistory').classList.toggle('active', tab === 'history');
       document.getElementById('viewForm').style.display = tab === 'new' ? 'block' : 'none';
@@ -891,8 +860,8 @@
       if (footer) footer.style.display = tab === 'new' ? 'flex' : 'none';
 
       if (tab === 'history') {
-        const cloudOrders = await loadFromCloud();
-        renderList(cloudOrders);
+        const list = syncFromServerHash();
+        renderList(list);
       }
     }
 
@@ -1076,18 +1045,36 @@
       return true;
     }
 
-    async function submitToBot() {
+    function submitToBot() {
       const d = getFormData();
       if (!validate(d)) return;
 
-      await saveOrUpdateOrder(d);
+      const local = loadLocal();
+      const existingIdx = local.findIndex(o => o.id === d.id);
+      if (existingIdx >= 0) local[existingIdx] = d;
+      else local.unshift(d);
+      saveAllLocal(local);
 
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
-        alert(`✅ Замер #${d.id} сохранен!`);
+        alert(`✅ Замер #${d.id} сохранен локально!`);
         cancelEditing();
         switchView('history');
+      }
+    }
+
+    function deleteOrder(orderId) {
+      if (!confirm(`Вы действительно хотите удалить замер #${orderId}? Действие необратимо.`)) {
+        return;
+      }
+      const all = loadLocal();
+      const filtered = all.filter(o => o.id !== orderId);
+      saveAllLocal(filtered);
+      renderList(filtered);
+
+      if (tg && tg.sendData) {
+        tg.sendData(JSON.stringify({ action: 'delete', order_id: orderId }));
       }
     }
 
@@ -1188,7 +1175,6 @@
       downloadItemPdf(d);
     }
 
-    // НАДЕЖНОЕ СКАЧИВАНИЕ PDF НА ТЕЛЕФОНЕ И ПК
     function downloadItemPdf(item) {
       fillPdf(item);
       const container = document.getElementById('pdf-container');
@@ -1203,31 +1189,24 @@
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // Прямое сохранение файла через встроенный загрузчик
       html2pdf().set(opt).from(container).toPdf().get('pdf').then(function(pdf) {
         const blob = pdf.output('blob');
         const blobUrl = URL.createObjectURL(blob);
 
-        // 1. Проверяем наличие специального API Telegram для скачивания (новые версии Telegram)
         if (tg && typeof tg.downloadFile === 'function') {
           tg.downloadFile({ url: blobUrl, file_name: filename });
           return;
         }
 
-        // 2. Стандартный нативный способ скачивания через элемент <a>
         const link = document.createElement('a');
         link.href = blobUrl;
         link.download = filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
         setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
       }).catch(function(err) {
-        // Fallback через прямой .save()
-        html2pdf().set(opt).from(container).save().catch(function() {
-          alert('Не удалось сформировать PDF. Попробуйте обновить страницу.');
-        });
+        html2pdf().set(opt).from(container).save();
       });
     }
 
@@ -1266,16 +1245,16 @@
             <div class="order-actions">
               <button type="button" class="btn-action btn-action-pdf" onclick='downloadItemPdf(${JSON.stringify(item)})'>📄 PDF</button>
               <button type="button" class="btn-action btn-action-edit" onclick="editOrder('${item.id}')">✏️ Изменить</button>
-              <button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑️️ Удалить</button>
+              <button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑 Удалить</button>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    async function doSearch() {
+    function doSearch() {
       const q = document.getElementById('searchInput').value.toLowerCase();
-      const all = await loadFromCloud();
+      const all = loadLocal();
       const filtered = all.filter(o => 
         (o.client_name && o.client_name.toLowerCase().includes(q)) ||
         (o.object_address && o.object_address.toLowerCase().includes(q)) ||
@@ -1285,8 +1264,9 @@
       renderList(filtered);
     }
 
+    // Автоматическая загрузка данных при старте
     window.addEventListener('DOMContentLoaded', () => {
-      loadFromCloud();
+      syncFromServerHash();
     });
   </script>
 </body>
