@@ -308,7 +308,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 45</span>
+    <span class="version-tag">Версия: 46</span>
   </div>
 
   <div class="tabs">
@@ -640,7 +640,12 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v45';
+    const LOCAL_KEY = 'glass_orders_db_v46';
+
+    // Определение текущего пользователя Telegram
+    const currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 0;
+    // Главный супер-администратор
+    const SUPER_ADMIN_ID = 253051175;
 
     let currentOrders = [];
 
@@ -657,9 +662,10 @@
       currentOrders = list;
     }
 
+    // Запрос базы данных с сервера с передачей user_id
     async function fetchServerOrders() {
       try {
-        const res = await fetch(SERVER_API_URL, {
+        const res = await fetch(`${SERVER_API_URL}?user_id=${currentUserId}`, {
           method: 'GET',
           cache: 'no-store'
         });
@@ -679,7 +685,7 @@
 
     async function loadAndRenderServerOrders() {
       const target = document.getElementById('historyList');
-      target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 20px;">Загрузка базы...</p>';
+      target.innerHTML = '<p style="color:var(--hint); text-align:center; padding: 20px;">Загрузка данных...</p>';
       const orders = await fetchServerOrders();
       renderList(orders);
     }
@@ -966,7 +972,6 @@
       }
     }
 
-    // Сохранение и выгрузка серверного PDF
     async function generatePdfSheet() {
       const d = getFormData();
       if (!validate(d)) return;
@@ -999,6 +1004,9 @@
         return;
       }
 
+      // Проверка: является ли пользователь супер-админом
+      const isAdmin = (currentUserId === SUPER_ADMIN_ID);
+
       target.innerHTML = list.map(item => {
         const isShelf = (item.construct_type === 'Стеклянные полки');
         const isCorner = isShelf && item.shelf_niche_type && item.shelf_niche_type.includes('Угловая');
@@ -1007,6 +1015,10 @@
               ? `Схема: ${item.shelf_niche_type} | Полок: ${item.shelf_count || 1} шт. | ${item.shelf_w_front} x ${item.shelf_d_left} мм`
               : `Схема: ${item.shelf_niche_type || 'Полки'} | Полок: ${item.shelf_count || 1} шт. | Ш: ${item.shelf_w_front} мм x Г: ${item.shelf_d_left} мм`)
           : `В: ${item.h_left}/${item.h_center}/${item.h_right} мм | Ш: ${item.w_bottom}/${item.w_middle}/${item.w_top} мм`;
+
+        const deleteButtonHtml = isAdmin 
+          ? `<button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑 Удалить</button>` 
+          : '';
 
         return `
           <div class="order-item">
@@ -1026,7 +1038,7 @@
             <div class="order-actions">
               <button type="button" class="btn-action btn-action-pdf" onclick="downloadItemPdfById('${item.id}')">📄 PDF</button>
               <button type="button" class="btn-action btn-action-edit" onclick="editOrder('${item.id}')">✏️ Изменить</button>
-              <button type="button" class="btn-action btn-action-delete" onclick="deleteOrder('${item.id}')">🗑 Удалить</button>
+              ${deleteButtonHtml}
             </div>
           </div>
         `;
