@@ -331,7 +331,6 @@
       color: #fff;
     }
 
-    /* Мягкое уведомление без залипания фокуса */
     #toastNotice {
       position: fixed;
       top: 16px;
@@ -357,7 +356,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 60</span>
+    <span class="version-tag">Версия: 61</span>
   </div>
 
   <div class="tabs">
@@ -694,8 +693,9 @@
           <input type="number" id="shower_curb_single" inputmode="numeric" placeholder="напр: 70 (если есть)">
         </div>
 
-        <!-- ДЛИНА КРАЕВ БОРТОВ -->
+        <!-- ДЛИНА КРАЕВ БОРТОВ / ПРОЕМА -->
         <div class="measure-box" id="box_shower_sizes">
+          <!-- 1. Г-ОБРАЗНАЯ -->
           <div id="fields_corner">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Длина краёв бортов (мм)</label>
             
@@ -722,6 +722,7 @@
             </div>
           </div>
 
+          <!-- 2. ПРЯМАЯ В НИШУ -->
           <div id="fields_straight" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина проема от стены до стены (мм)</label>
             <div class="grid-3">
@@ -731,6 +732,7 @@
             </div>
           </div>
 
+          <!-- 3. ТРАПЕЦИЯ 135° -->
           <div id="fields_trap" style="display:none;">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Участки бортов трапеции (мм)</label>
             <div class="grid-3">
@@ -762,21 +764,33 @@
           </div>
         </div>
 
-        <!-- УКЛОНЫ К СТЕНЕ -->
+        <!-- УКЛОНЫ К СТЕНЕ: ДЛЯ Г-ОБРАЗНОЙ И ТРАПЕЦИИ -->
         <div id="row_two_slopes" class="grid-2">
           <div class="form-group">
-            <label>Уклон борта/пола к стене (Борт 1)</label>
+            <label>Уклон к стене: Борт 1 (Левый)</label>
             <input type="text" id="floor_slope_1" placeholder="напр: 3 мм или Без уклона">
           </div>
           <div class="form-group">
-            <label>Уклон борта/пола к стене (Борт 2)</label>
+            <label>Уклон к стене: Борт 2 (Правый)</label>
             <input type="text" id="floor_slope_2" placeholder="напр: 3 мм или Без уклона">
           </div>
         </div>
 
-        <div id="row_one_slope" class="form-group" style="display: none;">
-          <label>Уклон борта/пола к стене</label>
-          <input type="text" id="floor_slope_single" placeholder="напр: 3 мм или Без уклона">
+        <!-- УКЛОН ДЛЯ ПРЯМОЙ В НИШУ: НАПРАВЛЕНИЕ + ЗНАЧЕНИЕ -->
+        <div id="row_straight_slope" class="grid-2" style="display: none;">
+          <div class="form-group">
+            <label>Направление уклона пола/борта</label>
+            <select id="straight_slope_dir">
+              <option value="Без уклона (в уровне)" selected>Без уклона (в уровне)</option>
+              <option value="Уклон к левой стене">Уклон к левой стене</option>
+              <option value="Уклон к правой стене">Уклон к правой стене</option>
+              <option value="Уклон к центру">Уклон к центру</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Перепад уклона (мм)</label>
+            <input type="text" id="straight_slope_val" placeholder="напр: 4 мм (или 0)">
+          </div>
         </div>
       </div>
 
@@ -828,7 +842,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v60';
+    const LOCAL_KEY = 'glass_orders_db_v61';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -838,11 +852,9 @@
 
     let currentOrders = [];
 
-    // Мягкое уведомление без блокировки фокуса
     function showNotification(msg) {
       if (tg && typeof tg.showAlert === 'function') {
         tg.showAlert(msg, () => {
-          // Гарантированно возвращаем кликабельность
           document.activeElement?.blur();
         });
         return;
@@ -942,7 +954,7 @@
       const rowTwoCurbs = document.getElementById('row_two_curbs');
       const rowOneCurb = document.getElementById('row_one_curb');
       const rowTwoSlopes = document.getElementById('row_two_slopes');
-      const rowOneSlope = document.getElementById('row_one_slope');
+      const rowStraightSlope = document.getElementById('row_straight_slope');
 
       fCorner.style.display = 'none';
       fStraight.style.display = 'none';
@@ -953,19 +965,19 @@
         rowTwoCurbs.style.display = 'grid';
         rowOneCurb.style.display = 'none';
         rowTwoSlopes.style.display = 'grid';
-        rowOneSlope.style.display = 'none';
+        rowStraightSlope.style.display = 'none';
       } else if (typeName.includes('Прямая')) {
         fStraight.style.display = 'block';
         rowTwoCurbs.style.display = 'none';
         rowOneCurb.style.display = 'block';
         rowTwoSlopes.style.display = 'none';
-        rowOneSlope.style.display = 'block';
+        rowStraightSlope.style.display = 'grid';
       } else if (typeName.includes('Трапеция')) {
         fTrap.style.display = 'block';
         rowTwoCurbs.style.display = 'grid';
         rowOneCurb.style.display = 'none';
         rowTwoSlopes.style.display = 'grid';
-        rowOneSlope.style.display = 'none';
+        rowStraightSlope.style.display = 'none';
       }
     }
 
@@ -1062,8 +1074,17 @@
         const curbW1 = isStraight ? (document.getElementById('shower_curb_single').value.trim() || '-') : (document.getElementById('shower_curb_w1').value.trim() || '-');
         const curbW2 = isStraight ? '-' : (document.getElementById('shower_curb_w2').value.trim() || '-');
 
-        const slope1 = isStraight ? (document.getElementById('floor_slope_single').value.trim() || 'Без уклона') : (document.getElementById('floor_slope_1').value.trim() || 'Без уклона');
-        const slope2 = isStraight ? '-' : (document.getElementById('floor_slope_2').value.trim() || 'Без уклона');
+        let slope1 = '-';
+        let slope2 = '-';
+
+        if (isStraight) {
+          const sDir = document.getElementById('straight_slope_dir').value;
+          const sVal = document.getElementById('straight_slope_val').value.trim();
+          slope1 = (sDir === 'Без уклона (в уровне)' || !sVal) ? sDir : `${sDir}: ${sVal}`;
+        } else {
+          slope1 = document.getElementById('floor_slope_1').value.trim() || 'Без уклона';
+          slope2 = document.getElementById('floor_slope_2').value.trim() || 'Без уклона';
+        }
 
         return {
           ...base,
