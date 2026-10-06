@@ -18,6 +18,7 @@
       --input-text: #ffffff;
       --accent: #22c55e;
       --danger: #ef4444;
+      --warning: #eab308;
     }
 
     * {
@@ -98,7 +99,7 @@
 
     .edit-banner {
       background: rgba(234, 179, 8, 0.15);
-      border: 1px solid #eab308;
+      border: 1px solid var(--warning);
       color: #fef08a;
       padding: 8px 12px;
       border-radius: 8px;
@@ -128,7 +129,6 @@
       word-break: break-word;
     }
 
-    /* Класс для гарантированного выравнивания полей */
     .fixed-lbl {
       height: 32px !important;
       display: flex !important;
@@ -292,6 +292,11 @@
       cursor: pointer;
     }
 
+    .btn-submit.btn-editing {
+      background: var(--warning) !important;
+      color: #0f172a !important;
+    }
+
     .btn-pdf {
       flex: 1;
       background: var(--accent);
@@ -336,6 +341,11 @@
       color: #fff;
     }
 
+    .btn-action-edit {
+      background: #d97706;
+      color: #fff;
+    }
+
     .btn-action-delete {
       background: #ef4444;
       color: #fff;
@@ -366,7 +376,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 70</span>
+    <span class="version-tag">Версия: 71</span>
   </div>
 
   <div class="tabs">
@@ -378,7 +388,7 @@
   <div id="viewForm">
     <div id="editBanner" class="edit-banner">
       <span>✏️ Редактирование замера <strong id="editOrderId">#</strong></span>
-      <button type="button" onclick="cancelEditing()" style="background:none; border:none; color:#fef08a; font-weight:bold; cursor:pointer;">Отмена ✕</button>
+      <button type="button" onclick="cancelEditing()" style="background:none; border:none; color:#fef08a; font-weight:bold; cursor:pointer; font-size: 13px;">Отмена ✕</button>
     </div>
 
     <form id="formEl" onsubmit="event.preventDefault();">
@@ -489,7 +499,7 @@
         </div>
       </div>
 
-      <!-- 3А. РАЗМЕРЫ: ПОЛКИ (БЕЗ ИЗМЕНЕНИЙ) -->
+      <!-- 3А. РАЗМЕРЫ: ПОЛКИ -->
       <div class="card" id="shelf_measure_card">
         <div class="card-title">📦 3. Схема ниши (вид сверху)</div>
 
@@ -614,7 +624,7 @@
           </div>
         </div>
 
-        <!-- 2. УГЛОВАЯ 90° (3 ТОЧКИ) -->
+        <!-- 2. УГЛОВАЯ 90° (ТОЛЬКО 3 ТОЧКИ) -->
         <div id="shelf_corner_3pts" style="display: none;">
           <div class="measure-box">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина по 3 точкам (мм)</label>
@@ -663,7 +673,7 @@
         </div>
       </div>
 
-      <!-- 3Б. РАЗМЕРЫ: ДУШЕВЫЕ (СТРОГО ВЫРАВНЕННЫЕ ПОЛЯ) -->
+      <!-- 3Б. РАЗМЕРЫ: ДУШЕВЫЕ -->
       <div class="card" id="shower_measure_card" style="display: none;">
         <div class="card-title">🚿 3. Конфигурация душевой (вид сверху)</div>
 
@@ -710,7 +720,7 @@
           <input type="number" id="shower_h" inputmode="numeric" placeholder="напр: 2000" value="2000">
         </div>
 
-        <!-- ШИРИНА БОРТОВ: СТРОГОЕ ВЫРАВНИВАНИЕ -->
+        <!-- ШИРИНА БОРТОВ -->
         <div id="row_two_curbs" class="grid-2">
           <div class="form-group">
             <label class="fixed-lbl">Ширина борта 1 (мм)</label>
@@ -727,7 +737,7 @@
           <input type="number" id="shower_curb_single" inputmode="numeric" placeholder="напр: 70 (если есть)">
         </div>
 
-        <!-- ДЛИНА КРАЕВ БОРТОВ: СТРОГОЕ ВЫРАВНИВАНИЕ -->
+        <!-- ДЛИНА КРАЕВ БОРТОВ -->
         <div class="measure-box" id="box_shower_sizes">
           <div id="fields_corner">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Длина краёв бортов (мм)</label>
@@ -786,7 +796,7 @@
           </div>
         </div>
 
-        <!-- ЗАВАЛ СТЕН: СТРОГОЕ ВЫРАВНИВАНИЕ -->
+        <!-- ЗАВАЛ СТЕН -->
         <div class="grid-2" style="margin-top: 10px;">
           <div class="form-group">
             <label class="fixed-lbl">Завал левой стены (мм)</label>
@@ -798,7 +808,7 @@
           </div>
         </div>
 
-        <!-- УКЛОНЫ К СТЕНЕ: СТРОГОЕ ВЫРАВНИВАНИЕ -->
+        <!-- УКЛОНЫ К СТЕНЕ -->
         <div id="row_two_slopes" class="grid-2">
           <div class="form-group">
             <label class="fixed-lbl">Борт 1 (к стене)</label>
@@ -876,7 +886,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v70';
+    const LOCAL_KEY = 'glass_orders_db_v71';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -1035,6 +1045,153 @@
         customGroup.style.display = 'none';
         document.getElementById('custom_hw_color').value = '';
       }
+    }
+
+    function cancelEditing() {
+      document.getElementById('editing_order_id').value = '';
+      document.getElementById('editBanner').style.display = 'none';
+      const btn = document.getElementById('submitBtn');
+      btn.innerText = '✅ Внести замер';
+      btn.classList.remove('btn-editing');
+      document.getElementById('formEl').reset();
+      onConstructTypeChange();
+      toggleCustomHardwareColor();
+      selectShelfNiche('Закрытая ниша', document.getElementById('niche_btn_1'));
+      selectShowerType('Г-образная (90°)', document.getElementById('shower_btn_corner'));
+    }
+
+    function editOrder(orderId) {
+      const item = currentOrders.find(o => String(o.id) === String(orderId));
+      if (!item) return;
+
+      switchView('new');
+
+      document.getElementById('editing_order_id').value = item.id;
+      document.getElementById('editOrderId').innerText = `#${item.id}`;
+      document.getElementById('editBanner').style.display = 'flex';
+
+      const btn = document.getElementById('submitBtn');
+      btn.innerText = '💾 Сохранить изменения';
+      btn.classList.add('btn-editing');
+
+      document.getElementById('client_name').value = item.client_name || '';
+      document.getElementById('client_phone').value = item.client_phone || '';
+      document.getElementById('object_address').value = item.object_address || '';
+      document.getElementById('entrance_info').value = (item.entrance_info !== '-' ? item.entrance_info : '') || '';
+      document.getElementById('floor_num').value = (item.floor_num !== '-' ? item.floor_num : '') || '';
+      document.getElementById('has_elevator').value = item.has_elevator || 'Есть';
+
+      document.getElementById('construct_type').value = item.construct_type || 'Стеклянные полки';
+      onConstructTypeChange();
+
+      document.getElementById('glass_thickness').value = item.glass_thickness || 'Согласовать';
+      document.getElementById('wall_material').value = item.wall_material || 'Керамогранит';
+      document.getElementById('notes').value = (item.notes !== '-' ? item.notes : '') || '';
+
+      const hw = item.hardware_color || 'Согласовать';
+      const standardHw = ['Согласовать', 'Хром', 'Черный', 'Бронза', 'Золото'];
+      if (standardHw.includes(hw)) {
+        document.getElementById('hardware_color').value = hw;
+        toggleCustomHardwareColor();
+      } else {
+        document.getElementById('hardware_color').value = 'Другой';
+        toggleCustomHardwareColor();
+        document.getElementById('custom_hw_color').value = hw;
+      }
+
+      if (item.construct_type === 'Стеклянные полки') {
+        const sn = item.shelf_niche_type || 'Закрытая ниша';
+        document.getElementById('shelf_niche_type').value = sn;
+        const btnMap = {
+          'Закрытая ниша': 'niche_btn_1',
+          'Слева короче': 'niche_btn_2',
+          'Справа короче': 'niche_btn_3',
+          'Угловая 90°': 'niche_btn_4'
+        };
+        selectShelfNiche(sn, document.getElementById(btnMap[sn] || 'niche_btn_1'));
+
+        document.getElementById('shelf_count').value = item.shelf_count || '1';
+        document.getElementById('shelf_h_total').value = (item.shelf_h_total !== '-' ? item.shelf_h_total : '') || '';
+        document.getElementById('shelf_holder_type').value = item.shelf_holder_type || 'Согласовать';
+        document.getElementById('shelf_edge_type').value = item.shelf_edge_type || 'Согласовать';
+        document.getElementById('shelf_corners').value = item.shelf_corners || 'Согласовать';
+
+        if (sn === 'Угловая 90°') {
+          document.getElementById('c3_w_1').value = item.shelf_w_front || '';
+          document.getElementById('c3_w_2').value = (item.shelf_w_front_2 !== '-' ? item.shelf_w_front_2 : '') || '';
+          document.getElementById('c3_w_3').value = (item.shelf_w_front_3 !== '-' ? item.shelf_w_front_3 : '') || '';
+          document.getElementById('c3_d_1').value = item.shelf_d_left || '';
+          document.getElementById('c3_d_2').value = (item.shelf_d_left_2 !== '-' ? item.shelf_d_left_2 : '') || '';
+          document.getElementById('c3_d_3').value = (item.shelf_d_left_3 !== '-' ? item.shelf_d_left_3 : '') || '';
+        } else {
+          document.getElementById('shelf_w_front').value = item.shelf_w_front || '';
+          document.getElementById('shelf_w_back').value = item.shelf_w_back || '';
+          document.getElementById('shelf_d_left').value = item.shelf_d_left || '';
+          document.getElementById('shelf_d_right').value = item.shelf_d_right || '';
+          document.getElementById('shelf_w_front_2').value = (item.shelf_w_front_2 !== '-' ? item.shelf_w_front_2 : '') || '';
+          document.getElementById('shelf_w_back_2').value = (item.shelf_w_back_2 !== '-' ? item.shelf_w_back_2 : '') || '';
+          document.getElementById('shelf_d_left_2').value = (item.shelf_d_left_2 !== '-' ? item.shelf_d_left_2 : '') || '';
+          document.getElementById('shelf_d_right_2').value = (item.shelf_d_right_2 !== '-' ? item.shelf_d_right_2 : '') || '';
+          document.getElementById('shelf_w_front_3').value = (item.shelf_w_front_3 !== '-' ? item.shelf_w_front_3 : '') || '';
+          document.getElementById('shelf_w_back_3').value = (item.shelf_w_back_3 !== '-' ? item.shelf_w_back_3 : '') || '';
+          document.getElementById('shelf_d_left_3').value = (item.shelf_d_left_3 !== '-' ? item.shelf_d_left_3 : '') || '';
+          document.getElementById('shelf_d_right_3').value = (item.shelf_d_right_3 !== '-' ? item.shelf_d_right_3 : '') || '';
+          document.getElementById('shelf_w_front_4').value = (item.shelf_w_front_4 !== '-' ? item.shelf_w_front_4 : '') || '';
+          document.getElementById('shelf_w_back_4').value = (item.shelf_w_back_4 !== '-' ? item.shelf_w_back_4 : '') || '';
+          document.getElementById('shelf_d_left_4').value = (item.shelf_d_left_4 !== '-' ? item.shelf_d_left_4 : '') || '';
+          document.getElementById('shelf_d_right_4').value = (item.shelf_d_right_4 !== '-' ? item.shelf_d_right_4 : '') || '';
+        }
+      } else {
+        const st = item.shower_type || 'Г-образная (90°)';
+        document.getElementById('shower_type').value = st;
+        const showerBtnMap = {
+          'Г-образная (90°)': 'shower_btn_corner',
+          'Прямая (в нишу)': 'shower_btn_straight',
+          'Трапеция (135°)': 'shower_btn_trap'
+        };
+        selectShowerType(st, document.getElementById(showerBtnMap[st] || 'shower_btn_corner'));
+
+        document.getElementById('shower_h').value = item.shower_h || '2000';
+        document.getElementById('tilt_wall_left').value = (item.tilt_wall_left !== '-' ? item.tilt_wall_left : '') || '';
+        document.getElementById('tilt_wall_right').value = (item.tilt_wall_right !== '-' ? item.tilt_wall_right : '') || '';
+
+        if (st.includes('Г-образная')) {
+          document.getElementById('shower_curb_w1').value = (item.shower_curb_w1 !== '-' ? item.shower_curb_w1 : '') || '';
+          document.getElementById('shower_curb_w2').value = (item.shower_curb_w2 !== '-' ? item.shower_curb_w2 : '') || '';
+          document.getElementById('corner_l1_out').value = (item.corner_l1_out !== '-' ? item.corner_l1_out : '') || '';
+          document.getElementById('corner_l1_in').value = (item.corner_l1_in !== '-' ? item.corner_l1_in : '') || '';
+          document.getElementById('corner_l2_out').value = (item.corner_l2_out !== '-' ? item.corner_l2_out : '') || '';
+          document.getElementById('corner_l2_in').value = (item.corner_l2_in !== '-' ? item.corner_l2_in : '') || '';
+          document.getElementById('floor_slope_1').value = (item.floor_slope_1 !== '-' ? item.floor_slope_1 : '') || '';
+          document.getElementById('floor_slope_2').value = (item.floor_slope_2 !== '-' ? item.floor_slope_2 : '') || '';
+        } else if (st.includes('Прямая')) {
+          document.getElementById('shower_curb_single').value = (item.shower_curb_w1 !== '-' ? item.shower_curb_w1 : '') || '';
+          document.getElementById('straight_w_bottom').value = (item.straight_w_bottom !== '-' ? item.straight_w_bottom : '') || '';
+          document.getElementById('straight_w_mid').value = (item.straight_w_mid !== '-' ? item.straight_w_mid : '') || '';
+          document.getElementById('straight_w_top').value = (item.straight_w_top !== '-' ? item.straight_w_top : '') || '';
+          const s1 = item.floor_slope_1 || '';
+          if (s1.includes(':')) {
+            const parts = s1.split(':');
+            document.getElementById('straight_slope_dir').value = parts[0].trim();
+            document.getElementById('straight_slope_val').value = parts[1].trim();
+          } else {
+            document.getElementById('straight_slope_dir').value = s1 || 'Без уклона (в уровне)';
+            document.getElementById('straight_slope_val').value = '';
+          }
+        } else if (st.includes('Трапеция')) {
+          document.getElementById('shower_curb_w1').value = (item.shower_curb_w1 !== '-' ? item.shower_curb_w1 : '') || '';
+          document.getElementById('shower_curb_w2').value = (item.shower_curb_w2 !== '-' ? item.shower_curb_w2 : '') || '';
+          document.getElementById('trap_seg1').value = (item.trap_seg1 !== '-' ? item.trap_seg1 : '') || '';
+          document.getElementById('trap_seg2').value = (item.trap_seg2 !== '-' ? item.trap_seg2 : '') || '';
+          document.getElementById('trap_seg3').value = (item.trap_seg3 !== '-' ? item.trap_seg3 : '') || '';
+          document.getElementById('trap_diag').value = (item.trap_diag !== '-' ? item.trap_diag : '') || '';
+          document.getElementById('trap_angles').value = item.trap_angles || '135°';
+          document.getElementById('floor_slope_1').value = (item.floor_slope_1 !== '-' ? item.floor_slope_1 : '') || '';
+          document.getElementById('floor_slope_2').value = (item.floor_slope_2 !== '-' ? item.floor_slope_2 : '') || '';
+        }
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function getFormData() {
@@ -1243,14 +1400,22 @@
       return true;
     }
 
-    function submitToBot() {
+    async function submitToBot() {
       const d = getFormData();
       if (!validate(d)) return;
+
+      try {
+        await fetch(SERVER_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(d)
+        });
+      } catch (e) {}
 
       if (tg && tg.sendData) {
         tg.sendData(JSON.stringify(d));
       } else {
-        showNotification(`✅ Замер #${d.id} отправлен!`);
+        showNotification(`✅ Замер #${d.id} сохранен!`);
         cancelEditing();
         switchView('history');
       }
@@ -1330,6 +1495,7 @@
             
             <div class="order-actions">
               <button type="button" class="btn-action btn-action-pdf" onclick="downloadItemPdfById('${item.id}')">📄 PDF</button>
+              <button type="button" class="btn-action btn-action-edit" onclick="editOrder('${item.id}')">✏️ Редактировать</button>
               ${deleteButtonHtml}
             </div>
           </div>
