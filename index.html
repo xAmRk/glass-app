@@ -365,7 +365,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 67</span>
+    <span class="version-tag">Версия: 68</span>
   </div>
 
   <div class="tabs">
@@ -613,55 +613,23 @@
           </div>
         </div>
 
-        <!-- 2. РАЗМЕРЫ ДЛЯ УГЛОВОЙ 90° (ТОЛЬКО 3 ТОЧКИ) -->
+        <!-- 2. РАЗМЕРЫ ДЛЯ УГЛОВОЙ 90° (ПО 1 ЗНАЧЕНИЮ НА ТОЧКУ: ШИРИНА И ГЛУБИНА) -->
         <div id="shelf_corner_3pts" style="display: none;">
           <div class="measure-box">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Ширина по 3 точкам (мм)</label>
-            <div class="point-row">
-              <span class="point-tag">Точка 1 (верх)</span>
-              <div class="grid-2">
-                <div><label style="font-size:10px;">Ш1 передний край</label><input type="number" id="c3_w_front_1" inputmode="numeric" placeholder="Ш1 перед"></div>
-                <div><label style="font-size:10px;">Ш1 задний край</label><input type="number" id="c3_w_back_1" inputmode="numeric" placeholder="Ш1 зад"></div>
-              </div>
-            </div>
-            <div class="point-row">
-              <span class="point-tag">Точка 2 (середина)</span>
-              <div class="grid-2">
-                <div><label style="font-size:10px;">Ш2 передний край</label><input type="number" id="c3_w_front_2" inputmode="numeric" placeholder="Ш2 перед"></div>
-                <div><label style="font-size:10px;">Ш2 задний край</label><input type="number" id="c3_w_back_2" inputmode="numeric" placeholder="Ш2 зад"></div>
-              </div>
-            </div>
-            <div class="point-row">
-              <span class="point-tag">Точка 3 (низ)</span>
-              <div class="grid-2">
-                <div><label style="font-size:10px;">Ш3 передний край</label><input type="number" id="c3_w_front_3" inputmode="numeric" placeholder="Ш3 перед"></div>
-                <div><label style="font-size:10px;">Ш3 задний край</label><input type="number" id="c3_w_back_3" inputmode="numeric" placeholder="Ш3 зад"></div>
-              </div>
+            <div class="grid-3">
+              <div><label style="font-size:10px;">Т1 (верх)</label><input type="number" id="c3_w_1" inputmode="numeric" placeholder="Ш1"></div>
+              <div><label style="font-size:10px;">Т2 (середина)</label><input type="number" id="c3_w_2" inputmode="numeric" placeholder="Ш2"></div>
+              <div><label style="font-size:10px;">Т3 (низ)</label><input type="number" id="c3_w_3" inputmode="numeric" placeholder="Ш3"></div>
             </div>
           </div>
 
           <div class="measure-box">
             <label style="color:#60a5fa; font-weight:700; margin-bottom: 6px;">Глубина по 3 точкам (мм)</label>
-            <div class="point-row">
-              <span class="point-tag">Точка 1 (верх)</span>
-              <div class="grid-2">
-                <div><label style="font-size:10px;">Г1 левый край</label><input type="number" id="c3_d_left_1" inputmode="numeric" placeholder="Г1 лево"></div>
-                <div><label style="font-size:10px;">Г1 правый край</label><input type="number" id="c3_d_right_1" inputmode="numeric" placeholder="Г1 право"></div>
-              </div>
-            </div>
-            <div class="point-row">
-              <span class="point-tag">Точка 2 (середина)</span>
-              <div class="grid-2">
-                <div><label style="font-size:10px;">Г2 левый край</label><input type="number" id="c3_d_left_2" inputmode="numeric" placeholder="Г2 лево"></div>
-                <div><label style="font-size:10px;">Г2 правый край</label><input type="number" id="c3_d_right_2" inputmode="numeric" placeholder="Г2 право"></div>
-              </div>
-            </div>
-            <div class="point-row">
-              <span class="point-tag">Точка 3 (низ)</span>
-              <div class="grid-2">
-                <div><label style="font-size:10px;">Г3 левый край</label><input type="number" id="c3_d_left_3" inputmode="numeric" placeholder="Г3 лево"></div>
-                <div><label style="font-size:10px;">Г3 правый край</label><input type="number" id="c3_d_right_3" inputmode="numeric" placeholder="Г3 право"></div>
-              </div>
+            <div class="grid-3">
+              <div><label style="font-size:10px;">Т1 (верх)</label><input type="number" id="c3_d_1" inputmode="numeric" placeholder="Г1"></div>
+              <div><label style="font-size:10px;">Т2 (середина)</label><input type="number" id="c3_d_2" inputmode="numeric" placeholder="Г2"></div>
+              <div><label style="font-size:10px;">Т3 (низ)</label><input type="number" id="c3_d_3" inputmode="numeric" placeholder="Г3"></div>
             </div>
           </div>
         </div>
@@ -906,7 +874,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v67';
+    const LOCAL_KEY = 'glass_orders_db_v68';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -1120,20 +1088,20 @@
         const sNiche = document.getElementById('shelf_niche_type').value;
         const isCorner = (sNiche === 'Угловая 90°');
 
-        const w1 = isCorner ? (document.getElementById('c3_w_front_1').value.trim() || '0') : (document.getElementById('shelf_w_front').value.trim() || '0');
-        const wb1 = isCorner ? (document.getElementById('c3_w_back_1').value.trim() || '0') : (document.getElementById('shelf_w_back').value.trim() || '0');
-        const dl1 = isCorner ? (document.getElementById('c3_d_left_1').value.trim() || '0') : (document.getElementById('shelf_d_left').value.trim() || '0');
-        const dr1 = isCorner ? (document.getElementById('c3_d_right_1').value.trim() || '0') : (document.getElementById('shelf_d_right').value.trim() || '0');
+        const w1 = isCorner ? (document.getElementById('c3_w_1').value.trim() || '0') : (document.getElementById('shelf_w_front').value.trim() || '0');
+        const wb1 = isCorner ? '-' : (document.getElementById('shelf_w_back').value.trim() || '0');
+        const dl1 = isCorner ? (document.getElementById('c3_d_1').value.trim() || '0') : (document.getElementById('shelf_d_left').value.trim() || '0');
+        const dr1 = isCorner ? '-' : (document.getElementById('shelf_d_right').value.trim() || '0');
 
-        const w2 = isCorner ? (document.getElementById('c3_w_front_2').value.trim() || '-') : (document.getElementById('shelf_w_front_2').value.trim() || '-');
-        const wb2 = isCorner ? (document.getElementById('c3_w_back_2').value.trim() || '-') : (document.getElementById('shelf_w_back_2').value.trim() || '-');
-        const dl2 = isCorner ? (document.getElementById('c3_d_left_2').value.trim() || '-') : (document.getElementById('shelf_d_left_2').value.trim() || '-');
-        const dr2 = isCorner ? (document.getElementById('c3_d_right_2').value.trim() || '-') : (document.getElementById('shelf_d_right_2').value.trim() || '-');
+        const w2 = isCorner ? (document.getElementById('c3_w_2').value.trim() || '-') : (document.getElementById('shelf_w_front_2').value.trim() || '-');
+        const wb2 = isCorner ? '-' : (document.getElementById('shelf_w_back_2').value.trim() || '-');
+        const dl2 = isCorner ? (document.getElementById('c3_d_2').value.trim() || '-') : (document.getElementById('shelf_d_left_2').value.trim() || '-');
+        const dr2 = isCorner ? '-' : (document.getElementById('shelf_d_right_2').value.trim() || '-');
 
-        const w3 = isCorner ? (document.getElementById('c3_w_front_3').value.trim() || '-') : (document.getElementById('shelf_w_front_3').value.trim() || '-');
-        const wb3 = isCorner ? (document.getElementById('c3_w_back_3').value.trim() || '-') : (document.getElementById('shelf_w_back_3').value.trim() || '-');
-        const dl3 = isCorner ? (document.getElementById('c3_d_left_3').value.trim() || '-') : (document.getElementById('shelf_d_left_3').value.trim() || '-');
-        const dr3 = isCorner ? (document.getElementById('c3_d_right_3').value.trim() || '-') : (document.getElementById('shelf_d_right_3').value.trim() || '-');
+        const w3 = isCorner ? (document.getElementById('c3_w_3').value.trim() || '-') : (document.getElementById('shelf_w_front_3').value.trim() || '-');
+        const wb3 = isCorner ? '-' : (document.getElementById('shelf_w_back_3').value.trim() || '-');
+        const dl3 = isCorner ? (document.getElementById('c3_d_3').value.trim() || '-') : (document.getElementById('shelf_d_left_3').value.trim() || '-');
+        const dr3 = isCorner ? '-' : (document.getElementById('shelf_d_right_3').value.trim() || '-');
 
         return {
           ...base,
@@ -1228,12 +1196,12 @@
         const sNiche = document.getElementById('shelf_niche_type').value;
         if (sNiche === 'Угловая 90°') {
           if (!data.shelf_w_front || data.shelf_w_front === '0') {
-            markInputError('c3_w_front_1');
+            markInputError('c3_w_1');
             showNotification('Укажите ширину полки (Точка 1)');
             return false;
           }
           if (!data.shelf_d_left || data.shelf_d_left === '0') {
-            markInputError('c3_d_left_1');
+            markInputError('c3_d_1');
             showNotification('Укажите глубину полки (Точка 1)');
             return false;
           }
