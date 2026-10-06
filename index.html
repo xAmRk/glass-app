@@ -376,7 +376,7 @@
 
   <div class="top-bar">
     <div style="font-weight: 700; font-size: 16px;">Замерщик: Стекло & Душ</div>
-    <span class="version-tag">Версия: 71</span>
+    <span class="version-tag">Версия: 72</span>
   </div>
 
   <div class="tabs">
@@ -392,12 +392,18 @@
     </div>
 
     <form id="formEl" onsubmit="event.preventDefault();">
-      <input type="hidden" id="editing_order_id" value="">
+      <!-- Скрытое поле для отслеживания старого ID при переименовании -->
+      <input type="hidden" id="original_order_id" value="">
 
       <!-- 1. Клиент и объект -->
       <div class="card">
         <div class="card-title">👤 1. Заказчик и объект</div>
         
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label style="color:#60a5fa; font-weight:700;">Номер замера / заказа *</label>
+          <input type="text" id="order_id_input" required placeholder="напр: 1024 или 595601" style="font-weight:bold; font-size:15px; border-color: #3b82f6;">
+        </div>
+
         <div class="grid-2">
           <div class="form-group">
             <label>ФИО Заказчика *</label>
@@ -852,7 +858,7 @@
         </div>
         <div class="form-group">
           <label>Примечания</label>
-          <textarea id="notes" rows="3" placeholder="Особые пожелания..."></textarea>
+          <textarea id="notes" rows="3" placeholder="Особые пожелания, вырезы, расположение розеток или крепежа..."></textarea>
         </div>
       </div>
 
@@ -886,7 +892,7 @@
     }
 
     const SERVER_API_URL = 'https://hwsverhbot.ru:8443/glass-api/api/orders';
-    const LOCAL_KEY = 'glass_orders_db_v71';
+    const LOCAL_KEY = 'glass_orders_db_v72';
 
     const SUPER_ADMIN_ID = 253051175;
     let currentUserId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -895,6 +901,15 @@
     }
 
     let currentOrders = [];
+
+    function generateNewOrderId() {
+      return Date.now().toString().slice(-6);
+    }
+
+    function initNewOrderForm() {
+      document.getElementById('original_order_id').value = '';
+      document.getElementById('order_id_input').value = generateNewOrderId();
+    }
 
     function showNotification(msg) {
       if (tg && typeof tg.showAlert === 'function') {
@@ -1048,12 +1063,13 @@
     }
 
     function cancelEditing() {
-      document.getElementById('editing_order_id').value = '';
+      document.getElementById('original_order_id').value = '';
       document.getElementById('editBanner').style.display = 'none';
       const btn = document.getElementById('submitBtn');
       btn.innerText = '✅ Внести замер';
       btn.classList.remove('btn-editing');
       document.getElementById('formEl').reset();
+      initNewOrderForm();
       onConstructTypeChange();
       toggleCustomHardwareColor();
       selectShelfNiche('Закрытая ниша', document.getElementById('niche_btn_1'));
@@ -1066,7 +1082,8 @@
 
       switchView('new');
 
-      document.getElementById('editing_order_id').value = item.id;
+      document.getElementById('original_order_id').value = item.id;
+      document.getElementById('order_id_input').value = item.id;
       document.getElementById('editOrderId').innerText = `#${item.id}`;
       document.getElementById('editBanner').style.display = 'flex';
 
@@ -1195,7 +1212,9 @@
     }
 
     function getFormData() {
-      const editingId = document.getElementById('editing_order_id').value;
+      const origId = document.getElementById('original_order_id').value.trim();
+      const enteredId = document.getElementById('order_id_input').value.trim() || generateNewOrderId();
+
       const construct = document.getElementById('construct_type').value;
       const colorVal = document.getElementById('glass_color').value;
       const matteVal = document.getElementById('glass_matte').value;
@@ -1226,7 +1245,8 @@
       const combinedFloorInfo = floorInfoArr.join(', ');
 
       const base = {
-        id: editingId || Date.now().toString().slice(-6),
+        id: enteredId,
+        original_id: origId || enteredId,
         date: new Date().toLocaleDateString('ru-RU'),
         client_name: document.getElementById('client_name').value.trim(),
         client_phone: document.getElementById('client_phone').value.trim(),
@@ -1335,6 +1355,11 @@
     function validate(data) {
       clearInputErrors();
 
+      if (!data.id) {
+        markInputError('order_id_input');
+        showNotification('Укажите номер замера/заказа');
+        return false;
+      }
       if (!data.client_name) {
         markInputError('client_name');
         showNotification('Укажите ФИО заказчика');
@@ -1509,7 +1534,7 @@
         (o.client_name && o.client_name.toLowerCase().includes(q)) ||
         (o.object_address && o.object_address.toLowerCase().includes(q)) ||
         (o.client_phone && o.client_phone.toLowerCase().includes(q)) ||
-        (o.id && o.id.includes(q))
+        (o.id && String(o.id).toLowerCase().includes(q))
       );
       renderList(filtered);
     }
@@ -1529,6 +1554,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+      initNewOrderForm();
       onConstructTypeChange();
       fetchServerOrders();
     });
